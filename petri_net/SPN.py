@@ -44,25 +44,28 @@ class SPN:
         # self.T = self.h.keys()
         # print self.T
 
-    def get_species_vector(self, sbml_model):
+    @staticmethod
+    def get_species_vector(sbml_model):
         p = {}
         for species_idx, species in enumerate(sbml_model.getListOfSpecies()):
             p[species.getId()] = species_idx
 
         return p
 
-    def get_reactions_vector(self, sbml_model):
+    @staticmethod
+    def get_reactions_vector(sbml_model):
         t = {}
         for reaction_idx, reaction in enumerate(sbml_model.getListOfReactions()):
             t[reaction.getId()] = reaction_idx
 
         return t
 
-    def get_stoichiometries(self, sbml_model):
+    @staticmethod
+    def get_stoichiometries(sbml_model):
         reactants_matrix = np.zeros([len(sbml_model.getListOfSpecies()),
                                      len(sbml_model.getListOfReactions())])
         products_matrix = np.zeros_like(reactants_matrix)
-        constant_matrix = np.ones_like(reactants_matrix)
+        constant_matrix = np.zeros_like(reactants_matrix)
 
         for reaction_idx, reaction in enumerate(sbml_model.getListOfReactions()):
             reactants = {r.getSpecies(): r.getStoichiometry() for r in
@@ -73,27 +76,32 @@ class SPN:
             for species_idx, species in enumerate(sbml_model.getListOfSpecies()):
                 species_id = species.getId()
                 if species_id in reactants.keys():
-                    reactants_matrix[species_idx, reaction_idx] = int(reactants.get(species_id, 0))
+                    reactants_matrix[species_idx, reaction_idx] = \
+                        int(reactants.get(species_id, 0))
                 if species_id in products.keys():
-                    products_matrix[species_idx, reaction_idx] = int(products.get(species_id, 0))
+                    products_matrix[species_idx, reaction_idx] = \
+                        int(products.get(species_id, 0))
                 if species.getConstant():
-                    constant_matrix[species_idx, reaction_idx] = 0
+                    constant_matrix[species_idx, reaction_idx] = 1
 
         return reactants_matrix, products_matrix, constant_matrix
 
-    def get_initial_state_vector(self, sbml_model):
+    @staticmethod
+    def get_initial_state_vector(sbml_model):
         m = []
         for species_idx, species in enumerate(sbml_model.getListOfSpecies()):
             m.append(species.getInitialAmount())
         return m
 
-    def get_hazards_vector(self, sbml_model):
+    @staticmethod
+    def get_hazards_vector(sbml_model):
         h = []
         for reaction_idx, reaction in enumerate(sbml_model.getListOfReactions()):
             h.append(libsbml.formulaToL3String(reaction.getKineticLaw().getMath()))
         return h
 
-    def get_rate_constants_vector(self, sbml_model):
+    @staticmethod
+    def get_rate_constants_vector(sbml_model):
         c = []
         for constant_idx, constant in enumerate(sbml_model.getListOfParameters()):
             c.append(constant.getValue())

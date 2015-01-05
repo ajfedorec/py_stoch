@@ -1,3 +1,9 @@
+import libsbml
+import sys
+
+import parser
+
+
 def main(argv):
     try:
         opts, args = getopt.getopt(argv, "m:s:", ["model=", "simulation="])
@@ -32,7 +38,7 @@ def main(argv):
     #   in:  sbml_model object, "simulation setup info"?
     #   out: simulationArguments object
     if sim_type in "TL":
-        sim_args = tl_parser.parse(sbml_model, sim_info)
+        sim_args = parser.TlParser.parse(sbml_model, sim_info)
 
 
     # INITIATE SIMULATION
