@@ -24,11 +24,11 @@ def main(argv):
     # READ IN SIM_XML
     # in:  path to simulation xml file
     # out: sim_info object
-    #TODO
+    # TODO
 
 
     # PARSE SBML - DEPENDENT ON SIM_XML
-    #   I.E. PARSING MAY BE DIFFERENT FOR TAU LEAPING, RANGES OF PARAMETERS ETC.
+    # I.E. PARSING MAY BE DIFFERENT FOR TAU LEAPING, RANGES OF PARAMETERS ETC.
     #   in:  sbml_model object, "simulation setup info"?
     #   out: simulationArguments object
     if sim_type in "TL":
