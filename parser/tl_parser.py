@@ -45,9 +45,9 @@
 # F    - pointer to next time instant          - uint  - U                //
 # Q    -                                       - {-1,0,1} - U             //
 
-import numpy as np
 import string
 import re
+from ctypes import *
 
 import sympy
 
@@ -95,8 +95,15 @@ class TlParser:
 
         args_out = TlArgs()
 
-        args_out.c = stochastic_petri_net.c
-        args_out.x_0 = stochastic_petri_net.M
+        temp_c_type = c_float * len(stochastic_petri_net.c)
+        args_out.c = temp_c_type()
+        for i in range(0, len(stochastic_petri_net.c)):
+            args_out.c[i] = c_float(stochastic_petri_net.c[i])
+
+        temp_x0_type = c_uint * len(stochastic_petri_net.M)
+        args_out.x_0 = temp_x0_type()
+        for i in range(0, len(stochastic_petri_net.M)):
+            args_out.x_0[i] = c_uint(int(stochastic_petri_net.M[i]))
 
         ma = stochastic_petri_net.Pre
         mb = stochastic_petri_net.Post
@@ -109,8 +116,8 @@ class TlParser:
         args_out.V_t, args_out.V_t_size = TlParser.flatten_matrix(mv_t)
         args_out.V_bar, args_out.V_bar_size = TlParser.flatten_matrix(mv_bar)
 
-        args_out.M = len(stochastic_petri_net.T)
-        args_out.N = len(stochastic_petri_net.P)
+        args_out.M = c_uint(len(stochastic_petri_net.T))
+        args_out.N = c_uint(len(stochastic_petri_net.P))
 
         args_out.H, args_out.H_type = TlParser.get_hors(stochastic_petri_net)
 
@@ -146,8 +153,10 @@ class TlParser:
 
     @staticmethod
     def get_hors(spn):
-        hors = np.zeros([len(spn.P)])
-        hors_type = np.zeros_like(hors)
+        h_type = c_uint * len(spn.P)
+
+        hors = h_type()
+        hors_type = h_type()
 
         reaction_orders = TlParser.get_reaction_orders(spn.h, spn.P)
         # for each reaction, check if a species is in it
@@ -166,27 +175,46 @@ class TlParser:
                     # get the stoichiometry of this species in this reaction
                     stoich = spn.Pre[species_idx][reaction_idx]
                     if stoich > hors_type[species_idx]:
-                        hors_type[species_idx] = stoich
+                        hors_type[species_idx] = int(stoich)
 
         return hors, hors_type
 
     @staticmethod
     def flatten_matrix(matrix):
-        f_matrix = []
+        # each entry in the flattened matrix is an array of 3 c_ints
+        f_matrix_entry_type = c_int * 3
+
+        # in order to create the array type for the flattened matrix we need the
+        # number of non-zero entries in the matrix
+        # this is magic from
+        # http://stackoverflow.com/questions/4294482/python-multidimensional
+        # -arrays-most-efficient-way-to-count-number-of-non-zero
+        nonzero_entry_count = sum(1 for row in matrix for i in row if i)
+
+        # the flattened matrix is going to be an array of f_matrix_entry_type
+        # with length equal to the number of non-zero entries
+        f_matrix_type = f_matrix_entry_type * nonzero_entry_count
+        f_matrix = f_matrix_type()
+
+        # go through the matrix looking for non-zero entries
         count = 0
         for i in range(matrix.shape[0]):
             for j in range(matrix.shape[1]):
                 if matrix[i][j] != 0:
-                    f_matrix.append([i, j, matrix[i][j]])
+                    # create a tuple of the entry's position and value
+                    entry = f_matrix_entry_type(int(i), int(j),
+                                                int(matrix[i][j]))
+                    f_matrix[count] = entry
                     count += 1
-        return f_matrix, count
+        return f_matrix, c_uint(count)
 
 ##########
 # TEST
 ##########
 import libsbml
 
-sbml_file = '/home/sandy/Downloads/BIOMD0000000001_SBML-L3V1.xml'
+# sbml_file = '/home/sandy/Downloads/BIOMD0000000001_SBML-L3V1.xml'
+sbml_file = '/home/sandy/Documents/Code/cuda-sim-code/examples/ex02_p53/p53model.xml'
 reader = libsbml.SBMLReader()
 document = reader.readSBML(sbml_file)
 # check the SBML for errors
@@ -199,5 +227,5 @@ my_args = TlParser.parse(sbml_model)
 spn = SPN()
 spn.sbml_2_stochastic_petri_net(sbml_model)
 # print spn.Pre
-print my_args.H_type
+print my_args.__dict__
 print spn.P
