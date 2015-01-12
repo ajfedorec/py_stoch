@@ -1,14 +1,5 @@
 # VARIABLE | DESCRIPTION                       | TYPE  | DIMENSIONS | KERNEL
 #
-# ********** MODEL VARIABLES **********
-# x        - system state                      - uint  - N          - P1-P2, P3 //
-# a        - values of propensity functions    - float - M          - P1-P2, P3 // COALESCED
-# x_prime  - putative system state             - int   - N          - P1-P2     // SHARED
-# xeta     - critical reactions                - {0,1} - M          - P1-P2     // MEMORY
-# K        - Poisson samples for reactions     - uint  - M          - P1-P2     //
-#
-# t        - simulation time of each thread    - float - U            // MAYBE GLOBAL?
-#
 # ********** MODEL PARAMETERS **********
 # c        - stochastic constants              - float - M          - P1-P2, P3 //
 # x_0      - initial system state              - uint  - N
@@ -18,6 +9,8 @@
 # V        - flattened stoichiometry matrix    - uchar4 - V_size      //  CONSTANT
 # V_t      - flat transpose of stoich matrix   - uchar4 - V_t_size    //  MEMORY
 # V_bar    - flat constant stoich matrix       - uchar4 - V_bar_size  //
+#
+# hazards  - function of hazard functions      - function
 #
 # ********** ATTRIBUTES OF THE MODEL **********
 # ita      - number of time instants for output- uint  - 1            //
@@ -32,40 +25,36 @@
 # H        - HOR for each species              - uint  - N            //  COULD BE
 # H_type   - stoichiometry of the HOR          - uint  - N            //  CONSTANT?
 #
-# G        - used to calculate tau             - float - N            // GLOBAL MEM
-#
 # ********** PARAMETERS OF THE SIMULATION **********
 # n_c      - critical reaction threshold       - uint  - 1            //  CONSTANT
 # eta      - error control parameter           - uint  - 1            //  MEMORY
 # t_max    - simulation length                 - float?- 1            //
 #
-# I    - time instants for output              - float - ita              //
-# E    - indices of the output species         - uint  - kappa            //  GLOBAL
-# O    - outputs                               - uint  - kappa x ita x U  //  MEM
-# F    - pointer to next time instant          - uint  - U                //
-# Q    -                                       - {-1,0,1} - U             //
+# E    - indices of the output species         - uint  - kappa            //
 
 import string
 import re
 from ctypes import *
 
 import sympy
+from jinja2 import Template
+from pycuda.compiler import SourceModule
 
 from petri_net import SPN
 
 
 class TlArgs:
     def __init__(self):
+        # definitions of these variables are in cuTauLeaping paper by Nobile
+        # et al.
         self.c = []
         self.x_0 = []
 
-        self.A = []  # flattened Pre matrix
+        self.A = []  # flattened spn.Pre matrix
         self.V = []
         self.V_t = []
         self.V_bar = []
 
-        self.ita = 0
-        self.kappa = 0
         self.M = 0
         self.N = 0
         self.A_size = 0
@@ -73,22 +62,32 @@ class TlArgs:
         self.V_t_size = 0
         self.V_bar_size = 0
 
+        self.hazards = CFUNCTYPE(POINTER(c_float), POINTER(c_uint),
+                                 POINTER(c_float))()
+
         self.H = []
         self.H_type = []
 
-        self.G = []
+        # these should be taken from a simulation set up xml
+        self.ita = 0  # number of time recording points
+        self.kappa = 0  # number of species we're recording
+        self.n_c = c_int(
+            10)  # tauLeaping critical reaction threshold, default=10
+        self.eta = c_float(0.03)  # tauLeaping error control param, default=0.03
+        self.t_max = 0  # the time at which the simulation ends
 
-        self.n_c = 0
-        self.eta = 0
-        self.t_max = 0
-
-        self.I = []
-        self.E = []
+        self.E = []  # indices of the output species
 
 
 class TlParser:
     @staticmethod
     def parse(sbml_model):
+        """
+
+        :param sbml_model:
+        :return: args_out:
+        """
+
         # THESE ARE TAKEN FROM THE SBML_MODEL
         stochastic_petri_net = SPN()
         stochastic_petri_net.sbml_2_stochastic_petri_net(sbml_model)
@@ -121,19 +120,46 @@ class TlParser:
 
         args_out.H, args_out.H_type = TlParser.get_hors(stochastic_petri_net)
 
+        TlParser.define_hazards(stochastic_petri_net)
+
         # THESE ARE TAKEN FROM THE SIMULATION XML
         # TODO
-        args_out.ita = 0
-        args_out.kappa = 0
-
-        args_out.n_c = 0
-        args_out.eta = 0
-        args_out.t_max = 0
-
-        args_out.I = []
-        args_out.E = []
+        # args_out.ita = 0
+        # args_out.kappa = 0
+        #
+        # args_out.n_c = 0
+        # args_out.eta = 0
+        # args_out.t_max = 0
+        #
+        # args_out.E = []
 
         return args_out
+
+    @staticmethod
+    def define_hazards(spn):
+        hazards_mod = Template(
+            """
+            __device__ void hazards( float *a, int *x, float* c, float t){
+                {{hazards}}
+            }
+            """)
+        hazards_list_string = ''
+        for haz_idx, haz in enumerate(spn.h):
+            hazards_list_string = hazards_list_string + 'a[' + str(
+                haz_idx) + '] = ' + haz + ';\n'
+        hazards_mod_code = hazards_mod.render(hazards=hazards_list_string)
+        for i in range(len(spn.P), 0, -1):
+            hazards_mod_code = string.replace(hazards_mod_code,
+                                              'species' + str(i - 1),
+                                              'x[' + str(i - 1) + ']')
+        for i in range(len(spn.c), 0, -1):
+            hazards_mod_code = string.replace(hazards_mod_code,
+                                              'param' + str(i - 1),
+                                              'c[' + str(i - 1) + ']')
+
+        mymod = SourceModule(hazards_mod_code)
+        return mymod
+
 
     @staticmethod
     def get_reaction_orders(hazards, species):
@@ -228,4 +254,5 @@ spn = SPN()
 spn.sbml_2_stochastic_petri_net(sbml_model)
 # print spn.Pre
 print my_args.__dict__
+print spn.h
 print spn.P
