@@ -34,11 +34,12 @@
 
 import string
 import re
-from ctypes import *
+import numpy
 
 import sympy
 from jinja2 import Template
-from pycuda.compiler import SourceModule
+import pycuda.autoinit
+import pycuda.gpuarray
 
 from petri_net import SPN
 
@@ -62,21 +63,21 @@ class TlArgs:
         self.V_t_size = 0
         self.V_bar_size = 0
 
-        self.hazards = CFUNCTYPE(POINTER(c_float), POINTER(c_uint),
-                                 POINTER(c_float))()
+        self.hazards = []
 
         self.H = []
         self.H_type = []
 
         # these should be taken from a simulation set up xml
-        self.ita = 0  # number of time recording points
-        self.kappa = 0  # number of species we're recording
-        self.n_c = c_int(
-            10)  # tauLeaping critical reaction threshold, default=10
-        self.eta = c_float(0.03)  # tauLeaping error control param, default=0.03
-        self.t_max = 0  # the time at which the simulation ends
+        self.ita = 100  # number of time recording points
+        self.kappa = 1  # number of species we're recording
+        self.n_c = 10  # tauLeaping critical reaction threshold, default=10
+        self.eta = 0.03  # tauLeaping error control param, default=0.03
+        self.t_max = 10  # the time at which the simulation ends
 
-        self.E = []  # indices of the output species
+        self.E = [1]  # indices of the output species
+
+        self.U = 500
 
 
 class TlParser:
@@ -94,15 +95,9 @@ class TlParser:
 
         args_out = TlArgs()
 
-        temp_c_type = c_float * len(stochastic_petri_net.c)
-        args_out.c = temp_c_type()
-        for i in range(0, len(stochastic_petri_net.c)):
-            args_out.c[i] = c_float(stochastic_petri_net.c[i])
+        args_out.c = numpy.array(stochastic_petri_net.c).astype(numpy.float32)
 
-        temp_x0_type = c_uint * len(stochastic_petri_net.M)
-        args_out.x_0 = temp_x0_type()
-        for i in range(0, len(stochastic_petri_net.M)):
-            args_out.x_0[i] = c_uint(int(stochastic_petri_net.M[i]))
+        args_out.x_0 = numpy.array(stochastic_petri_net.M).astype(numpy.uint32)
 
         ma = stochastic_petri_net.Pre
         mb = stochastic_petri_net.Post
@@ -115,12 +110,12 @@ class TlParser:
         args_out.V_t, args_out.V_t_size = TlParser.flatten_matrix(mv_t)
         args_out.V_bar, args_out.V_bar_size = TlParser.flatten_matrix(mv_bar)
 
-        args_out.M = c_uint(len(stochastic_petri_net.T))
-        args_out.N = c_uint(len(stochastic_petri_net.P))
+        args_out.M = len(stochastic_petri_net.T)
+        args_out.N = len(stochastic_petri_net.P)
 
         args_out.H, args_out.H_type = TlParser.get_hors(stochastic_petri_net)
 
-        TlParser.define_hazards(stochastic_petri_net)
+        args_out.hazards = TlParser.define_hazards(stochastic_petri_net)
 
         # THESE ARE TAKEN FROM THE SIMULATION XML
         # TODO
@@ -139,13 +134,14 @@ class TlParser:
     def define_hazards(spn):
         hazards_mod = Template(
             """
-            __device__ void hazards( float *a, int *x, float* c, float t){
-                {{hazards}}
+            __device__ void UpdatePropensities(float* a, uint* x, float* c)
+            {
+            {{hazards}}
             }
             """)
         hazards_list_string = ''
         for haz_idx, haz in enumerate(spn.h):
-            hazards_list_string = hazards_list_string + 'a[' + str(
+            hazards_list_string = hazards_list_string + '    ' + 'a[' + str(
                 haz_idx) + '] = ' + haz + ';\n'
         hazards_mod_code = hazards_mod.render(hazards=hazards_list_string)
         for i in range(len(spn.P), 0, -1):
@@ -157,9 +153,9 @@ class TlParser:
                                               'param' + str(i - 1),
                                               'c[' + str(i - 1) + ']')
 
-        mymod = SourceModule(hazards_mod_code)
-        return mymod
-
+        # mymod = SourceModule(hazards_mod_code)
+        #print hazards_mod_code
+        return hazards_mod_code
 
     @staticmethod
     def get_reaction_orders(hazards, species):
@@ -179,10 +175,8 @@ class TlParser:
 
     @staticmethod
     def get_hors(spn):
-        h_type = c_uint * len(spn.P)
-
-        hors = h_type()
-        hors_type = h_type()
+        hors = []
+        hors_type = []
 
         reaction_orders = TlParser.get_reaction_orders(spn.h, spn.P)
         # for each reaction, check if a species is in it
@@ -203,56 +197,43 @@ class TlParser:
                     if stoich > hors_type[species_idx]:
                         hors_type[species_idx] = int(stoich)
 
-        return hors, hors_type
+        return numpy.array(hors), numpy.array(hors_type)
 
     @staticmethod
     def flatten_matrix(matrix):
-        # each entry in the flattened matrix is an array of 3 c_ints
-        f_matrix_entry_type = c_int * 3
+        # each entry in the flattened matrix is an uchar4
+        f_matrix = []
 
-        # in order to create the array type for the flattened matrix we need the
-        # number of non-zero entries in the matrix
-        # this is magic from
-        # http://stackoverflow.com/questions/4294482/python-multidimensional
-        # -arrays-most-efficient-way-to-count-number-of-non-zero
-        nonzero_entry_count = sum(1 for row in matrix for i in row if i)
-
-        # the flattened matrix is going to be an array of f_matrix_entry_type
-        # with length equal to the number of non-zero entries
-        f_matrix_type = f_matrix_entry_type * nonzero_entry_count
-        f_matrix = f_matrix_type()
-
-        # go through the matrix looking for non-zero entries
         count = 0
         for i in range(matrix.shape[0]):
             for j in range(matrix.shape[1]):
                 if matrix[i][j] != 0:
-                    # create a tuple of the entry's position and value
-                    entry = f_matrix_entry_type(int(i), int(j),
-                                                int(matrix[i][j]))
-                    f_matrix[count] = entry
+                    entry = pycuda.gpuarray.vec.make_char4(int(i), int(j),
+                                                           int(matrix[i][j]), 0)
+                    f_matrix.append(entry)
                     count += 1
-        return f_matrix, c_uint(count)
+        return numpy.array(f_matrix), count
 
 ##########
 # TEST
 ##########
-import libsbml
-
-# sbml_file = '/home/sandy/Downloads/BIOMD0000000001_SBML-L3V1.xml'
-sbml_file = '/home/sandy/Documents/Code/cuda-sim-code/examples/ex02_p53/p53model.xml'
-reader = libsbml.SBMLReader()
-document = reader.readSBML(sbml_file)
-# check the SBML for errors
-error_count = document.getNumErrors()
-if error_count > 0:
-    raise UserWarning(error_count + ' errors in SBML file: ' + open_file_.name)
-sbml_model = document.getModel()
-
-my_args = TlParser.parse(sbml_model)
-spn = SPN()
-spn.sbml_2_stochastic_petri_net(sbml_model)
-# print spn.Pre
-print my_args.__dict__
-print spn.h
-print spn.P
+# import libsbml
+#
+# # sbml_file = '/home/sandy/Downloads/BIOMD0000000001_SBML-L3V1.xml'
+# sbml_file = '/home/sandy/Documents/Code/cuda-sim-code/examples/ex02_p53
+# /p53model.xml'
+# reader = libsbml.SBMLReader()
+# document = reader.readSBML(sbml_file)
+# # check the SBML for errors
+# error_count = document.getNumErrors()
+# if error_count > 0:
+# raise UserWarning(error_count + ' errors in SBML file: ' + open_file_.name)
+# sbml_model = document.getModel()
+#
+# my_args = TlParser.parse(sbml_model)
+# spn = SPN()
+# spn.sbml_2_stochastic_petri_net(sbml_model)
+# # print spn.Pre
+# print my_args.__dict__
+# print spn.h
+# print spn.P

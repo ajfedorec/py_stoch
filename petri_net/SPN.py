@@ -26,12 +26,9 @@ class SPN:
         self.M = self.get_initial_state_vector(sbml_model)
         # print self.M
 
-        # get hazards vector h
-        self.h = self.get_hazards_vector(sbml_model)
-        # print self.h
-
         # get rate constants vector c
         self.c = self.get_rate_constants_vector(sbml_model)
+        constants = self.get_rate_constants(sbml_model)
         # print self.c
 
         # get species vector P
@@ -43,6 +40,10 @@ class SPN:
         self.T = self.get_reactions_vector(sbml_model)
         # self.T = self.h.keys()
         # print self.T
+
+        # get hazards vector h
+        self.h = self.get_hazards_vector(sbml_model, self.P, constants)
+        # print self.h
 
     @staticmethod
     def get_species_vector(sbml_model):
@@ -59,6 +60,14 @@ class SPN:
             t[reaction.getId()] = reaction_idx
 
         return t
+
+    @staticmethod
+    def get_rate_constants(sbml_model):
+        con = {}
+        for param_idx, param in enumerate(sbml_model.getListOfParameters()):
+            con[param.getId()] = param_idx
+        return con
+
 
     @staticmethod
     def get_stoichiometries(sbml_model):
@@ -94,11 +103,39 @@ class SPN:
         return m
 
     @staticmethod
-    def get_hazards_vector(sbml_model):
+    def get_hazards_vector(sbml_model, species_dict, param_dict):
         h = []
         for reaction_idx, reaction in enumerate(sbml_model.getListOfReactions()):
-            h.append(libsbml.formulaToL3String(reaction.getKineticLaw().getMath()))
+            math = SPN.replace_species_names(reaction.getKineticLaw().getMath(),
+                                             species_dict)
+            math = SPN.replace_parameter_names(math, param_dict)
+            math = libsbml.formulaToL3String(math)
+            h.append(math)
         return h
+
+    @staticmethod
+    def replace_species_names(mathml, species_dict):
+        num_children = mathml.getNumChildren()
+        for i in range(num_children):
+            SPN.replace_species_names(mathml.getChild(i), species_dict)
+        if mathml.getType() == libsbml.AST_NAME:
+            for species, species_idx in species_dict.iteritems():
+                if species == mathml.getName():
+                    mathml.setName('species' + str(species_idx))
+                    break
+        return mathml
+
+    @staticmethod
+    def replace_parameter_names(mathml, params_dict):
+        num_children = mathml.getNumChildren()
+        for i in range(num_children):
+            SPN.replace_parameter_names(mathml.getChild(i), params_dict)
+        if mathml.getType() == libsbml.AST_NAME:
+            for param, param_idx in params_dict.iteritems():
+                if param == mathml.getName():
+                    mathml.setName('param' + str(param_idx))
+                    break
+        return mathml
 
     @staticmethod
     def get_rate_constants_vector(sbml_model):
