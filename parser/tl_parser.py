@@ -38,8 +38,6 @@ import numpy
 
 import sympy
 from jinja2 import Template
-import pycuda.autoinit
-import pycuda.gpuarray
 
 from petri_net import SPN
 
@@ -69,15 +67,18 @@ class TlArgs:
         self.H_type = []
 
         # these should be taken from a simulation set up xml
-        self.ita = 100  # number of time recording points
-        self.kappa = 1  # number of species we're recording
+        self.E = numpy.array([2]).astype(
+            numpy.uint8)  # indices of the output species
+        self.ita = 2  # number of time recording points
+        self.kappa = len(self.E)  # number of species we're recording
         self.n_c = 10  # tauLeaping critical reaction threshold, default=10
         self.eta = 0.03  # tauLeaping error control param, default=0.03
-        self.t_max = 10  # the time at which the simulation ends
+        self.t_max = 0.1  # the time at which the simulation ends
 
-        self.E = [1]  # indices of the output species
+        self.I = numpy.array([])  # instances for recording
 
-        self.U = 500
+        # self.U = 998400
+        self.U = 256000
 
 
 class TlParser:
@@ -127,7 +128,8 @@ class TlParser:
         # args_out.t_max = 0
         #
         # args_out.E = []
-
+        args_out.I = numpy.linspace(0, args_out.t_max, num=args_out.ita).astype(
+            numpy.float32)
         return args_out
 
     @staticmethod
@@ -146,11 +148,11 @@ class TlParser:
         hazards_mod_code = hazards_mod.render(hazards=hazards_list_string)
         for i in range(len(spn.P), 0, -1):
             hazards_mod_code = string.replace(hazards_mod_code,
-                                              'species' + str(i - 1),
+                                              'species_' + str(i - 1),
                                               'x[' + str(i - 1) + ']')
         for i in range(len(spn.c), 0, -1):
             hazards_mod_code = string.replace(hazards_mod_code,
-                                              'param' + str(i - 1),
+                                              'parameter_' + str(i - 1),
                                               'c[' + str(i - 1) + ']')
 
         # mymod = SourceModule(hazards_mod_code)
@@ -167,6 +169,7 @@ class TlParser:
 
             # expand the equation to it's canonical form
             py_hazard = str(sympy.expand(py_hazard))
+
             # is degree of poly == reaction order?
             temp_poly = sympy.poly(py_hazard, sympy.symbols(species.keys()))
             poly_degree = sympy.polys.polytools.Poly.total_degree(temp_poly)
@@ -175,9 +178,8 @@ class TlParser:
 
     @staticmethod
     def get_hors(spn):
-        hors = []
-        hors_type = []
-
+        hors = numpy.zeros(len(spn.P))
+        hors_type = numpy.zeros(len(spn.P))
         reaction_orders = TlParser.get_reaction_orders(spn.h, spn.P)
         # for each reaction, check if a species is in it
         for reaction, reaction_idx in spn.T.iteritems():
@@ -196,8 +198,8 @@ class TlParser:
                     stoich = spn.Pre[species_idx][reaction_idx]
                     if stoich > hors_type[species_idx]:
                         hors_type[species_idx] = int(stoich)
-
-        return numpy.array(hors), numpy.array(hors_type)
+        return numpy.array(hors).astype(numpy.uint8), numpy.array(
+            hors_type).astype(numpy.uint8)
 
     @staticmethod
     def flatten_matrix(matrix):
@@ -208,20 +210,21 @@ class TlParser:
         for i in range(matrix.shape[0]):
             for j in range(matrix.shape[1]):
                 if matrix[i][j] != 0:
-                    entry = pycuda.gpuarray.vec.make_char4(int(i), int(j),
-                                                           int(matrix[i][j]), 0)
+                    entry = numpy.array(
+                        [numpy.byte(i), numpy.byte(j), numpy.byte(matrix[i][j]),
+                         numpy.byte(0)])
                     f_matrix.append(entry)
                     count += 1
-        return numpy.array(f_matrix), count
+        return numpy.array(f_matrix), numpy.ubyte(count)
 
 ##########
 # TEST
 ##########
 # import libsbml
 #
-# # sbml_file = '/home/sandy/Downloads/BIOMD0000000001_SBML-L3V1.xml'
-# sbml_file = '/home/sandy/Documents/Code/cuda-sim-code/examples/ex02_p53
-# /p53model.xml'
+# sbml_file = '/home/sandy/Downloads/plasmid_stability.xml'
+# # sbml_file = '/home/sandy/Documents/Code/cuda-sim-code/examples/ex02_p53
+# # /p53model.xml'
 # reader = libsbml.SBMLReader()
 # document = reader.readSBML(sbml_file)
 # # check the SBML for errors
@@ -230,10 +233,10 @@ class TlParser:
 # raise UserWarning(error_count + ' errors in SBML file: ' + open_file_.name)
 # sbml_model = document.getModel()
 #
-# my_args = TlParser.parse(sbml_model)
+# # my_args = TlParser.parse(sbml_model)
 # spn = SPN()
 # spn.sbml_2_stochastic_petri_net(sbml_model)
 # # print spn.Pre
-# print my_args.__dict__
+# # print my_args.__dict__
 # print spn.h
 # print spn.P

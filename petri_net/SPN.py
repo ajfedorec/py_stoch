@@ -49,7 +49,7 @@ class SPN:
     def get_species_vector(sbml_model):
         p = {}
         for species_idx, species in enumerate(sbml_model.getListOfSpecies()):
-            p[species.getId()] = species_idx
+            p["species_" + str(species_idx)] = species_idx
 
         return p
 
@@ -67,7 +67,6 @@ class SPN:
         for param_idx, param in enumerate(sbml_model.getListOfParameters()):
             con[param.getId()] = param_idx
         return con
-
 
     @staticmethod
     def get_stoichiometries(sbml_model):
@@ -106,34 +105,36 @@ class SPN:
     def get_hazards_vector(sbml_model, species_dict, param_dict):
         h = []
         for reaction_idx, reaction in enumerate(sbml_model.getListOfReactions()):
-            math = SPN.replace_species_names(reaction.getKineticLaw().getMath(),
-                                             species_dict)
-            math = SPN.replace_parameter_names(math, param_dict)
+            math = SPN.replace_hazard_species(
+                reaction.getKineticLaw().getMath(),
+                sbml_model)
+            math = SPN.replace_hazard_parameter(math, param_dict)
             math = libsbml.formulaToL3String(math)
             h.append(math)
         return h
 
     @staticmethod
-    def replace_species_names(mathml, species_dict):
+    def replace_hazard_species(mathml, sbml_model):
         num_children = mathml.getNumChildren()
+        species_list = sbml_model.getListOfSpecies();
         for i in range(num_children):
-            SPN.replace_species_names(mathml.getChild(i), species_dict)
+            SPN.replace_hazard_species(mathml.getChild(i), sbml_model)
         if mathml.getType() == libsbml.AST_NAME:
-            for species, species_idx in species_dict.iteritems():
-                if species == mathml.getName():
-                    mathml.setName('species' + str(species_idx))
+            for species_idx, species in enumerate(species_list):
+                if species.getId() == mathml.getName():
+                    mathml.setName('species_' + str(species_idx))
                     break
         return mathml
 
     @staticmethod
-    def replace_parameter_names(mathml, params_dict):
+    def replace_hazard_parameter(mathml, params_dict):
         num_children = mathml.getNumChildren()
         for i in range(num_children):
-            SPN.replace_parameter_names(mathml.getChild(i), params_dict)
+            SPN.replace_hazard_parameter(mathml.getChild(i), params_dict)
         if mathml.getType() == libsbml.AST_NAME:
             for param, param_idx in params_dict.iteritems():
                 if param == mathml.getName():
-                    mathml.setName('param' + str(param_idx))
+                    mathml.setName('parameter_' + str(param_idx))
                     break
         return mathml
 
