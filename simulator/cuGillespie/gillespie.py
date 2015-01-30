@@ -5,8 +5,7 @@ kernel = '''
 extern "C" {
 __device__ __constant__ float d_c[$PARAM_NUM];
 __device__ __constant__ uint d_x_0[$SPECIES_NUM];
-__device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 time
-point
+__device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 timepoint
 __device__ __constant__ unsigned char d_E[$KAPPA];
 
 __device__ __constant__ char4 d_V[$V_SIZE];
@@ -16,8 +15,7 @@ __device__ __constant__ unsigned char d_V_size = $V_SIZE;
 __device__ void UpdatePropensities(float* a, uint* x, float* c);
 __device__ uint SingleCriticalReaction(float* a, float a_0,
 curandStateMRG32k3a* rstate);
-__device__ void SaveDynamics(uint* x, uint f, uint tid, uint O[$KAPPA][$ITA][
-$THREAD_NUM]);
+__device__ void SaveDynamics(uint* x, uint f, uint tid, uint O[$KAPPA][$ITA][$THREAD_NUM]);
 __device__ void UpdateState(uint* x, uint j);
 
 __global__ void kernel_Gillespie(uint d_O[$KAPPA][$ITA][$THREAD_NUM],
@@ -83,8 +81,7 @@ __global__ void kernel_Gillespie(uint d_O[$KAPPA][$ITA][$THREAD_NUM],
         // 21. if T[tid] >= I[F[tid]] then
         if(d_t[tid] >= d_I[d_F[tid]])
         {
-            //printf("d_t = %f,  d_I[d_F] = %f, d_F = %d in thread %d\\n",
-            d_t[tid], d_I[d_F[tid]], d_F[tid], tid);
+            //printf("d_t = %f,  d_I[d_F] = %f, d_F = %d in thread %d\\n", d_t[tid], d_I[d_F[tid]], d_F[tid], tid);
             // 22. SaveDynamics(x[sid],O[tid],E[tid])
             SaveDynamics(x[sid], d_F[tid], tid, d_O);
 
@@ -103,7 +100,7 @@ __global__ void kernel_Gillespie(uint d_O[$KAPPA][$ITA][$THREAD_NUM],
 }
 
 __device__ uint SingleCriticalReaction(float* a, float a_0,
-curandStateMRG32k3a* rstate)
+                                       curandStateMRG32k3a* rstate)
 {
     float rho = curand_uniform(rstate);
     float rcount = 0;
@@ -118,14 +115,13 @@ curandStateMRG32k3a* rstate)
     }
 }
 
-__device__ void SaveDynamics(uint* x, uint f, uint tid, uint O[$KAPPA][$ITA][
-$THREAD_NUM])
+__device__ void SaveDynamics(uint* x, uint f, uint tid,
+                             uint O[$KAPPA][$ITA][$THREAD_NUM])
 {
     //printf("save dynamics f = %d in thread %d\\n", f, tid);
     for(int i = 0; i < $KAPPA; i++)
     {
-        //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", i, i, d_E[i],
-        d_E[i], x[d_E[i]], f);
+        //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", i, i, d_E[i], d_E[i], x[d_E[i]], f);
         O[i][f][tid] = x[d_E[i]];
     }
 }

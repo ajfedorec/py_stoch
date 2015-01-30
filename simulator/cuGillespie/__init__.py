@@ -1,1 +1,1 @@
-__author__ = 'sandy'
+from cuGillespie import CuGillespie

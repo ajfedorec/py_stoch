@@ -11,23 +11,22 @@ __device__ __constant__ unsigned char d_H_type[$SPECIES_NUM]; // ?
 
 __device__ __constant__ float d_c[$PARAM_NUM];
 
-__device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 time
-point
+__device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 time point
 __device__ __constant__ unsigned char d_E[$KAPPA];
 
 
 // FUNCTION DECLARATIONS
 __device__ void UpdatePropensities(float* a, uint* x, float* c);
 __device__ uint SingleCriticalReaction(float* a, float a_0,
-curandStateMRG32k3a* rstate);
+                                       curandStateMRG32k3a* rstate);
 __device__ void UpdateState(uint* x, uint j);
-__device__ void SaveDynamics(uint* x, uint f, uint tid, uint O[$KAPPA][$ITA][
-$THREAD_NUM]);
+__device__ void SaveDynamics(uint* x, uint f, uint tid,
+                             uint O[$KAPPA][$ITA][$THREAD_NUM]);
 
 
 __global__ void kernel_P3(uint global_x[$THREAD_NUM][$SPECIES_NUM],
                           uint d_O[$KAPPA][$ITA][$THREAD_NUM],
-                          short d_Q[$THREAD_NUM],
+                          int d_Q[$THREAD_NUM],
                           float d_t[$THREAD_NUM],
                           uint d_F[$THREAD_NUM],
                           curandStateMRG32k3a d_rng[$THREAD_NUM])
@@ -126,8 +125,7 @@ __global__ void kernel_P3(uint global_x[$THREAD_NUM][$SPECIES_NUM],
             {
                 // 25. Q[tid] <- -1
                 d_Q[tid] = -1;
-                printf("SSA: No more samples: simulation over in thread
-                %d\\n", tid);
+                printf("SSA: No more samples: simulation over in thread %d\\n", tid);
             // 26. end if
             }
         // 27. end if
@@ -145,8 +143,8 @@ __global__ void kernel_P3(uint global_x[$THREAD_NUM][$SPECIES_NUM],
 // 31. end procedure
 }
 
-__device__ void SaveDynamics(uint* x, uint f, uint tid, uint O[$KAPPA][$ITA][
-$THREAD_NUM])
+__device__ void SaveDynamics(uint* x, uint f, uint tid,
+                             uint O[$KAPPA][$ITA][$THREAD_NUM])
 {
     for(int i = 0; i < $KAPPA; i++)
     {
@@ -155,7 +153,7 @@ $THREAD_NUM])
 }
 
 __device__ uint SingleCriticalReaction(float* a, float a_0,
-curandStateMRG32k3a* rstate)
+                                       curandStateMRG32k3a* rstate)
 {
     float rho = curand_uniform(rstate);
     float rcount = 0;

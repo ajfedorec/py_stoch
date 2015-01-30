@@ -11,8 +11,7 @@ __device__ __constant__ unsigned char d_H_type[$SPECIES_NUM]; // ?
 
 __device__ __constant__ float d_c[$PARAM_NUM];
 
-__device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 time
-point
+__device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 time point
 __device__ __constant__ unsigned char d_E[$KAPPA];
 
 // FUNCTION DECLARATIONS
@@ -20,20 +19,22 @@ __device__ void UpdatePropensities(float* a, uint* x, float* c);
 __device__ void GetSpecies(uint* temp, uint* x);
 __device__ void DetermineCriticalReactions(unsigned char* xeta, uint* x);
 __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta,
-float* mu, float* sigma2);
+                                 float* mu, float* sigma2);
 __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
-float* sigma2);
+                              float* sigma2);
 __device__ float CalculateG(uint* x, int i);
 __device__ uint SingleCriticalReaction(unsigned char* xeta, float* a,
-float a_0_c, curandStateMRG32k3a* rstate);
+                                       float a_0_c, curandStateMRG32k3a* rstate);
 __device__ void TentativeUpdatedState(int* x_prime, uint* x, int* K);
 __device__ bool ValidState(int* x_prime);
 __device__ void SaveInterpolatedDynamics(uint* x, int* x_prime, float t0,
-float t_Tau, uint f, uint O[$KAPPA][$ITA][$THREAD_NUM], int tid);
+                                         float t_Tau, uint f,
+                                         uint O[$KAPPA][$ITA][$THREAD_NUM],
+                                         int tid);
 
 __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
                              uint d_O[$KAPPA][$ITA][$THREAD_NUM],
-                             short d_Q[$THREAD_NUM],
+                             int d_Q[$THREAD_NUM],
                              float d_t[$THREAD_NUM],
                              uint d_F[$THREAD_NUM],
                              curandStateMRG32k3a d_rng[$THREAD_NUM])
@@ -93,8 +94,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
             time_out_idx++)
             {
                 // 13. O[tid][i] <- x[tid]
-                d_O[species_out_idx][time_out_idx][tid] = x[sid][d_E[
-                species_out_idx]];
+                d_O[species_out_idx][time_out_idx][tid] = x[sid][d_E[species_out_idx]];
             }
         // 13. end for
         }
@@ -341,12 +341,10 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu, float* si
 
             float numerator_l = fmaxf(($ETA * x[d_A[pre_elem_idx].x] / g_i), 1);
             float lhs = numerator_l /  fabsf(mu[d_A[pre_elem_idx].x]);
-            float rhs = (numerator_l * numerator_l) / sigma2[d_A[
-            pre_elem_idx].x];
+            float rhs = (numerator_l * numerator_l) / sigma2[d_A[pre_elem_idx].x];
             float temp_tau = fminf(lhs, rhs);
 
-            //printf("d_eta = %f, x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[
-            %d] = %f\\n", d_eta, d_A[i].x, x[d_A[i].x], g_i, d_A[i].x, mu[d_A[i].x], d_A[i].x, sigma2[d_A[i].x]);
+            //printf("d_eta = %f, x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[%d] = %f\\n", d_eta, d_A[i].x, x[d_A[i].x], g_i, d_A[i].x, mu[d_A[i].x], d_A[i].x, sigma2[d_A[i].x]);
             //printf("numerator_l = %f, lhs = %f, rhs = %f\\n", numerator_l, lhs, rhs);
 
             if(temp_tau < tau)
@@ -393,14 +391,12 @@ __device__ float CalculateG(uint* x, int i)
     }
     else
     {
-        //printf("Species %d HOR is of order %d and therefore a G value can't
-        be calculated for it.\\n", i, d_H[i]);
+        //printf("Species %d HOR is of order %d and therefore a G value can't be calculated for it.\\n", i, d_H[i]);
         return 0.;
     }
 }
 
-__device__ uint SingleCriticalReaction(unsigned char* xeta, float* a, float
-a_0_c,
+__device__ uint SingleCriticalReaction(unsigned char* xeta, float* a, float a_0_c,
                                        curandStateMRG32k3a* rstate)
 {
     float rho = curand_uniform(rstate);
@@ -446,7 +442,9 @@ __device__ bool ValidState(int* x_prime)
 }
 
 __device__ void SaveInterpolatedDynamics(uint* x, int* x_prime, float t0,
-float t_Tau, uint f, uint O[$KAPPA][$ITA][$THREAD_NUM], int tid)
+                                         float t_Tau, uint f,
+                                         uint O[$KAPPA][$ITA][$THREAD_NUM],
+                                         int tid)
 {
     float record_time = d_I[f];
 
@@ -454,23 +452,16 @@ float t_Tau, uint f, uint O[$KAPPA][$ITA][$THREAD_NUM], int tid)
     float normalised_record_time = record_time - t0;
     float fractional_record_point = normalised_record_time / time_gap;
 
-    //printf("record: %d, t0: %f, t_end: %f, record_time: %f,
-    fractional_record_point: %f\\n", f, t0, t_Tau, record_time,
-    fractional_record_point);
+    //printf("record: %d, t0: %f, t_end: %f, record_time: %f, fractional_record_point: %f\\n", f, t0, t_Tau, record_time, fractional_record_point);
 
     for(int species_out_idx = 0; species_out_idx < $KAPPA; species_out_idx++)
     {
-        //printf("d_E[%d]: %d, xprime[%d]: %d, x[%d]: %d\\n", i, d_E[i],
-        d_E[i], x_prime[d_E[i]], d_E[i], x[d_E[i]]);
-        int species_diff = x_prime[d_E[species_out_idx]] - x[d_E[
-        species_out_idx]];
-        float fractional_species_increase = species_diff *
-        fractional_record_point;
+        //printf("d_E[%d]: %d, xprime[%d]: %d, x[%d]: %d\\n", i, d_E[i], d_E[i], x_prime[d_E[i]], d_E[i], x[d_E[i]]);
+        int species_diff = x_prime[d_E[species_out_idx]] - x[d_E[species_out_idx]];
+        float fractional_species_increase = species_diff * fractional_record_point;
 
-        uint species_record_point = x[d_E[species_out_idx]] +
-        fractional_species_increase;
-        //printf("species[%u] - species_diff: %d,
-        fractional_species_increase: %f, species_record_point: %u\\n", d_E[i], species_diff, fractional_species_increase, species_record_point);
+        uint species_record_point = x[d_E[species_out_idx]] + fractional_species_increase;
+        //printf("species[%u] - species_diff: %d, fractional_species_increase: %f, species_record_point: %u\\n", d_E[i], species_diff, fractional_species_increase, species_record_point);
 
         O[species_out_idx][f][tid] = species_record_point;
     }

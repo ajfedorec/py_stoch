@@ -67,7 +67,7 @@ class TlArgs:
         self.H_type = []
 
         # these should be taken from a simulation set up xml
-        self.E = numpy.array([2]).astype(
+        self.E = numpy.array([0,1,2]).astype(
             numpy.uint8)  # indices of the output species
         self.ita = 2  # number of time recording points
         self.kappa = len(self.E)  # number of species we're recording
@@ -78,7 +78,7 @@ class TlArgs:
         self.I = numpy.array([])  # instances for recording
 
         # self.U = 998400
-        self.U = 256000
+        self.U = 1280000
 
 
 class TlParser:
