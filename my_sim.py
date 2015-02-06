@@ -57,14 +57,14 @@ def main(argv):
     plt.subplots_adjust(left=0.15)
     plt.show()
 
-    # WRITE OUT RESULTS
-    now = datetime.now()
-    dt = str(now.year) + '-' + str(now.month) + '-' + str(now.day) + '-' + str(now.hour)+ '-' + str(now.minute)
-    for i in range(len(sim_result)):
-        filename = 'var' + str(i) + '_' + dt
-        if out_dir is not None:
-            filename = "{0}/{1}".format(out_dir, filename)
-        numpy.savetxt(filename, sim_result[i], fmt='%1u')
+    # # WRITE OUT RESULTS
+    # now = datetime.now()
+    # dt = str(now.year) + '-' + str(now.month) + '-' + str(now.day) + '-' + str(now.hour)+ '-' + str(now.minute)
+    # for i in range(len(sim_result)):
+    #     filename = 'var' + str(i) + '_' + dt
+    #     if out_dir is not None:
+    #         filename = "{0}/{1}".format(out_dir, filename)
+    #     numpy.savetxt(filename, sim_result[i], fmt='%1u')
 
     # # CHECK SIMULATION RESULTS
     # if sim_result == 0:
@@ -80,7 +80,7 @@ def main(argv):
 ##########
 # TEST
 ##########
-sim_type = "TL"
+sim_type = "G"
 out_dir = None
 
 sbml_file = '/home/sandy/Downloads/simple_sbml.xml'

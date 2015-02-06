@@ -3,13 +3,12 @@ kernel = '''
 #include <curand_kernel.h>
 
 extern "C" {
+// CONSTANT MEMORY
 __device__ __constant__ float d_c[$PARAM_NUM];
 __device__ __constant__ uint d_x_0[$SPECIES_NUM];
 __device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 timepoint
 __device__ __constant__ unsigned char d_E[$KAPPA];
-
 __device__ __constant__ char4 d_V[$V_SIZE];
-__device__ __constant__ unsigned char d_V_size = $V_SIZE;
 
 // FUNCTION DECLARATIONS
 __device__ void UpdatePropensities(float* a, uint* x, float* c);
@@ -129,7 +128,7 @@ __device__ void SaveDynamics(uint* x, uint f, uint tid,
 __device__ void UpdateState(uint* x, uint j)
 {
     // we loop over each non-zero element in the stoichiometry matrix
-    for(int v = 0; v < d_V_size; v++)
+    for(int v = 0; v < $V_SIZE; v++)
     {
         if(d_V[v].y == j)
         {

@@ -4,15 +4,13 @@ kernel = '''
 
 extern "C" {
 // CONSTANT MEMORY
-__device__ __constant__ char4 d_A[$A_SIZE];
-__device__ __constant__ char4 d_V[$V_SIZE];
-__device__ __constant__ unsigned char d_H[$SPECIES_NUM]; // ?
-__device__ __constant__ unsigned char d_H_type[$SPECIES_NUM]; // ?
-
-__device__ __constant__ float d_c[$PARAM_NUM];
-
-__device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 time point
-__device__ __constant__ unsigned char d_E[$KAPPA];
+__device__ __constant__ char4 d_A[$A_SIZE]; // flattened Pre matrix
+__device__ __constant__ char4 d_V[$V_SIZE]; // flattened Stoichiometry matrix
+__device__ __constant__ unsigned char d_H[$SPECIES_NUM]; // HORs vector
+__device__ __constant__ unsigned char d_H_type[$SPECIES_NUM]; //
+__device__ __constant__ float d_c[$PARAM_NUM]; // parameters vector
+__device__ __constant__ float d_I[$ITA + 1];  // output time points
+__device__ __constant__ unsigned char d_E[$KAPPA]; // outpu species indexes
 
 // FUNCTION DECLARATIONS
 __device__ void UpdatePropensities(float* a, uint* x, float* c);
@@ -22,7 +20,7 @@ __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta,
                                  float* mu, float* sigma2);
 __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
                               float* sigma2);
-__device__ float CalculateG(uint* x, int i);
+__device__ float CalculateG(uint x, int i);
 __device__ uint SingleCriticalReaction(unsigned char* xeta, float* a,
                                        float a_0_c, curandStateMRG32k3a* rstate);
 __device__ void TentativeUpdatedState(int* x_prime, uint* x, int* K);
@@ -45,6 +43,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     // 3. sid <- getLocalId()
     int sid = threadIdx.x;
 
+    // get the rng state for this thread
     curandStateMRG32k3a rstate = d_rng[tid];
 
     // 4. x[sid] <- global_x[tid]
@@ -73,12 +72,12 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     __shared__ float a[$BLOCK_SIZE][$REACT_NUM];
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
     {
-        a[sid][react_idx] = 0.;
+        a[sid][react_idx] = 0.f;
     }
     UpdatePropensities(a[sid], x[sid], c[sid]);
 
     // 9. a0 <- Sum(a)
-    float a_0 = 0.;
+    float a_0 = 0.f;
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
     {
         a_0 = a_0 + a[sid][react_idx];
@@ -90,8 +89,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
         // 11. for i <- F[tid]...ita do
         for(int species_out_idx = 0; species_out_idx < $KAPPA; species_out_idx++)
         {
-            for(int time_out_idx = d_F[tid]; time_out_idx < $ITA;
-            time_out_idx++)
+            for(int time_out_idx = d_F[tid]; time_out_idx < $ITA; time_out_idx++)
             {
                 // 13. O[tid][i] <- x[tid]
                 d_O[species_out_idx][time_out_idx][tid] = x[sid][d_E[species_out_idx]];
@@ -119,8 +117,8 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     float sigma2[$A_SIZE];
     for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
     {
-        mu[pre_elem_idx] = 0.;
-        sigma2[pre_elem_idx] = 0.;
+        mu[pre_elem_idx] = 0.f;
+        sigma2[pre_elem_idx] = 0.f;
     }
     CalculateMuSigma(x[sid], a[sid], Xeta[sid], mu, sigma2);
 
@@ -133,7 +131,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     {
         // 21. Q[tid] <- 0
         d_Q[tid] = 0;
-        //printf("SSA steps are more efficient in thread %d\\n", tid);
+        printf("SSA steps are more efficient in thread %d\\n", tid);
         // 22. return
         return;
     }
@@ -152,7 +150,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     {
         K[sid][react_idx] = 0;
     }
-    float a_0_c = 0;
+    float a_0_c = 0.f;
 
     // 27. for all j in Xeta do
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
@@ -170,11 +168,11 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
 
     // 30. if a_0_c > 0 then Tau_2 <- (1./a_0_c) * ln(1./rho_1)
     float tau_2 = INFINITY;
-    if(a_0_c > 0)
+    if(a_0_c > 0.f)
     {
         float rho_1 = curand_uniform(&rstate);
         //printf("rho_1 = %f in thread %d\\n", rho_1, tid);
-        tau_2 = (1. / a_0_c) * logf(1. / rho_1);
+        tau_2 = (1.f / a_0_c) * logf(1.f / rho_1);
     // 31. end if
     }
     //printf("tau_2 = %f in thread %d\\n", tau_2, tid);
@@ -225,7 +223,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
         }
 
         // 44. Tau <- Tau / 2
-        tau = tau / 2;
+        tau = tau / 2.f;
     // 45. until False
     }
 
@@ -262,26 +260,30 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
 // 55. end procedure
 }
 
-__device__ void GetSpecies(uint* temp, uint* x)
-{
-    for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
-    {
-        temp[species_idx] = x[d_E[species_idx]];
-    }
-}
-
 __device__ void DetermineCriticalReactions(unsigned char* xeta, uint* x)
 {
-    // we loop over each reactant, d_A
-    for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
+    //// we loop over each reactant, d_A
+    //for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
+    //{
+        //// if the stoichiometry of the reactant (d_A[i].z) * our critical
+        //// reaction threshold (d_n_c) is greater than the current number of
+        //// molecules of the reactant species (x[d_A[i].x]), the reaction in
+        //// which the reactant is taking place is classed as critical.
+        //if((d_A[pre_elem_idx].z * $N_C) > x[d_A[pre_elem_idx].x])
+        //{
+            //xeta[d_A[pre_elem_idx].y] = 1;
+        //}
+    //}
+    for(int stoich_elem_idx = 0; stoich_elem_idx < $V_SIZE; stoich_elem_idx++)
     {
-        // if the stoichiometry of the reactant (d_A[i].z) * our critical
-        // reaction threshold (d_n_c) is greater than the current number of
-        // molecules of the reactant species (x[d_A[i].x]), the reaction in
-        // which the reactant is taking place is classed as critical.
-        if((d_A[pre_elem_idx].z * $N_C) > x[d_A[pre_elem_idx].x])
+        if(d_V[stoich_elem_idx].z < 0)
         {
-            xeta[d_A[pre_elem_idx].y] = 1;
+            // this line is a hack to do a quick abs(x) for integers
+            int abs_stoich = d_V[stoich_elem_idx].z < 0 ? -d_V[stoich_elem_idx].z : d_V[stoich_elem_idx].z;
+            if((abs_stoich * $N_C) > x[d_V[stoich_elem_idx].x])
+            {
+                xeta[d_V[stoich_elem_idx].y] = 1;
+            }
         }
     }
 }
@@ -310,15 +312,11 @@ __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta, float* 
                         // reaction j
                         //   and a_j(x) is the propensity of reaction j given
                         // state x
-                        mu[d_V[stoich_elem_idx].x] = mu[d_V[
-                        stoich_elem_idx].x] + d_V[stoich_elem_idx].z * a[d_V[
-                        stoich_elem_idx].y];
+                        mu[d_V[stoich_elem_idx].x] = mu[d_V[stoich_elem_idx].x] + (d_V[stoich_elem_idx].z * a[d_V[stoich_elem_idx].y]);
 
                         // sigma^2_i = Sum_j_ncr(v_ij^2 * a_j(x)) for all i in {
                         // set of reactant species}
-                        sigma2[d_V[stoich_elem_idx].x] = sigma2[d_V[
-                        stoich_elem_idx].x] + d_V[stoich_elem_idx].z * d_V[
-                        stoich_elem_idx].z * a[d_V[stoich_elem_idx].y];
+                        sigma2[d_V[stoich_elem_idx].x] = sigma2[d_V[stoich_elem_idx].x] + ((d_V[stoich_elem_idx].z * d_V[stoich_elem_idx].z) * a[d_V[stoich_elem_idx].y]);
                     }
                 }
             }
@@ -337,9 +335,9 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu, float* si
         // if the reactant (d_A[i]) is in a non-critical reaction
         if(xeta[d_A[pre_elem_idx].y] == 0)
         {
-            float g_i = CalculateG(x, d_A[pre_elem_idx].x);
+            float g_i = CalculateG(x[d_A[pre_elem_idx].x], d_A[pre_elem_idx].x);
 
-            float numerator_l = fmaxf(($ETA * x[d_A[pre_elem_idx].x] / g_i), 1);
+            float numerator_l = fmaxf(($ETA * x[d_A[pre_elem_idx].x] / g_i), 1.f);
             float lhs = numerator_l /  fabsf(mu[d_A[pre_elem_idx].x]);
             float rhs = (numerator_l * numerator_l) / sigma2[d_A[pre_elem_idx].x];
             float temp_tau = fminf(lhs, rhs);
@@ -356,43 +354,43 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu, float* si
     return tau;
 }
 
-__device__ float CalculateG(uint* x, int i)
+__device__ float CalculateG(uint x_i, int i)
 {
     //printf("d_H[%d] = %d\\n", i, d_H[i]);
     if(d_H[i] == 1)
     {
-        return 1.;
+        return 1.f;
     }
     else if(d_H[i] == 2)
     {
         if(d_H_type[i] == 2)
         {
-            return (2 + 1 / (x[i] - 1));
+            return (2.f + 1.f / (x_i - 1.f));
         }
         else
         {
-            return 2.;
+            return 2.f;
         }
     }
     else if(d_H[i] == 3)
     {
         if(d_H_type[i] == 3)
         {
-            return (3 + 1 / (x[i] - 1) + 2 / (x[i] - 2));
+            return (3.f + 1.f / (x_i - 1.f) + 2.f / (x_i - 2.f));
         }
         else if(d_H_type[i] == 2)
         {
-            return 3/2 * (2 + 1 / (x[i] - 1));
+            return 3.f / 2.f * (2.f + 1.f / (x_i - 1.f));
         }
         else
         {
-            return 3.;
+            return 3.f;
         }
     }
     else
     {
         //printf("Species %d HOR is of order %d and therefore a G value can't be calculated for it.\\n", i, d_H[i]);
-        return 0.;
+        return 0.f;
     }
 }
 
@@ -400,7 +398,7 @@ __device__ uint SingleCriticalReaction(unsigned char* xeta, float* a, float a_0_
                                        curandStateMRG32k3a* rstate)
 {
     float rho = curand_uniform(rstate);
-    float rcount = 0;
+    float rcount = 0.f;
 
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
     {

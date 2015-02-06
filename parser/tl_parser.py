@@ -78,7 +78,7 @@ class TlArgs:
         self.I = numpy.array([])  # instances for recording
 
         # self.U = 998400
-        self.U = 1280000
+        self.U = 12800
 
 
 class TlParser:

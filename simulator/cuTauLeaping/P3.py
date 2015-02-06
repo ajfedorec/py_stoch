@@ -8,12 +8,9 @@ __device__ __constant__ char4 d_A[$A_SIZE];
 __device__ __constant__ char4 d_V[$V_SIZE];
 __device__ __constant__ unsigned char d_H[$SPECIES_NUM]; // ?
 __device__ __constant__ unsigned char d_H_type[$SPECIES_NUM]; // ?
-
 __device__ __constant__ float d_c[$PARAM_NUM];
-
 __device__ __constant__ float d_I[$ITA + 1];  // +1 because I include 0 time point
 __device__ __constant__ unsigned char d_E[$KAPPA];
-
 
 // FUNCTION DECLARATIONS
 __device__ void UpdatePropensities(float* a, uint* x, float* c);

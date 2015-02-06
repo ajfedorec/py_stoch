@@ -1,11 +1,10 @@
-__author__ = 'sandy'
-
 import math
 import numpy
 
 import pycuda.tools as cuda_tools
 from pycuda import characterize
 import pycuda.driver as cuda
+import pycuda.autoinit
 from pycuda.compiler import SourceModule
 
 
