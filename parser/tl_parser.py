@@ -37,8 +37,8 @@ import re
 import numpy
 
 import sympy
-from jinja2 import Template
 
+from parser import Parser
 from petri_net import SPN
 
 
@@ -67,7 +67,7 @@ class TlArgs:
         self.H_type = []
 
         # these should be taken from a simulation set up xml
-        self.E = numpy.array([0,1,2]).astype(
+        self.E = numpy.array([0, 1, 2]).astype(
             numpy.uint8)  # indices of the output species
         self.ita = 2  # number of time recording points
         self.kappa = len(self.E)  # number of species we're recording
@@ -78,10 +78,10 @@ class TlArgs:
         self.I = numpy.array([])  # instances for recording
 
         # self.U = 998400
-        self.U = 12800
+        self.U = 128000
 
 
-class TlParser:
+class TlParser(Parser):
     @staticmethod
     def parse(sbml_model):
         """
@@ -132,32 +132,6 @@ class TlParser:
             numpy.float32)
         return args_out
 
-    @staticmethod
-    def define_hazards(spn):
-        hazards_mod = Template(
-            """
-            __device__ void UpdatePropensities(float* a, uint* x, float* c)
-            {
-            {{hazards}}
-            }
-            """)
-        hazards_list_string = ''
-        for haz_idx, haz in enumerate(spn.h):
-            hazards_list_string = hazards_list_string + '    ' + 'a[' + str(
-                haz_idx) + '] = ' + haz + ';\n'
-        hazards_mod_code = hazards_mod.render(hazards=hazards_list_string)
-        for i in range(len(spn.P), 0, -1):
-            hazards_mod_code = string.replace(hazards_mod_code,
-                                              'species_' + str(i - 1),
-                                              'x[' + str(i - 1) + ']')
-        for i in range(len(spn.c), 0, -1):
-            hazards_mod_code = string.replace(hazards_mod_code,
-                                              'parameter_' + str(i - 1),
-                                              'c[' + str(i - 1) + ']')
-
-        # mymod = SourceModule(hazards_mod_code)
-        #print hazards_mod_code
-        return hazards_mod_code
 
     @staticmethod
     def get_reaction_orders(hazards, species):
@@ -200,22 +174,6 @@ class TlParser:
                         hors_type[species_idx] = int(stoich)
         return numpy.array(hors).astype(numpy.uint8), numpy.array(
             hors_type).astype(numpy.uint8)
-
-    @staticmethod
-    def flatten_matrix(matrix):
-        # each entry in the flattened matrix is an uchar4
-        f_matrix = []
-
-        count = 0
-        for i in range(matrix.shape[0]):
-            for j in range(matrix.shape[1]):
-                if matrix[i][j] != 0:
-                    entry = numpy.array(
-                        [numpy.byte(i), numpy.byte(j), numpy.byte(matrix[i][j]),
-                         numpy.byte(0)])
-                    f_matrix.append(entry)
-                    count += 1
-        return numpy.array(f_matrix), numpy.ubyte(count)
 
 ##########
 # TEST

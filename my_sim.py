@@ -41,20 +41,30 @@ def main(argv):
     # INITIATE SIMULATION
     # in:  simulationArguments object, "simulation setup info"?
     #   out: simulation exit message
-    if sim_type in "TL":
-        simulator = cuTauLeaping.CuTauLeaping()
-    elif sim_type in "G":
-        simulator = cuGillespie.CuGillespie()
-    sim_result = simulator.run(sbml_model)
+    # if sim_type in "TL":
+    #     simulator = cuTauLeaping.CuTauLeaping()
+    # elif sim_type in "G":
+    #     simulator = cuGillespie.CuGillespie()
+    # sim_result = simulator.run(sbml_model)
+
+    # print sim_result
+
+    sim1 = cuTauLeaping.CuTauLeaping()
+    sim2 = cuGillespie.CuGillespie()
+    simR1 = sim1.run(sbml_model)
+    simR2 = sim2.run(sbml_model)
 
     import matplotlib.pyplot as plt
+    from scipy import stats
 
-    num_bins = 80
-    # the histogram of the data
-    n, bins, patches = plt.hist(sim_result[2][1], bins=num_bins, normed=1, histtype='step',
-                                range=[10, 90])
-    plt.axis([10, 90, 0, 0.07])
-    plt.subplots_adjust(left=0.15)
+    density1 = stats.gaussian_kde(simR1[2][1])
+    density2 = stats.gaussian_kde(simR2[2][1])
+
+    plt_range = numpy.arange(10, 90, 1)
+
+    plt.plot(plt_range, density1(plt_range), 'r-')
+    plt.plot(plt_range, density2(plt_range), 'b-')
+    # plt.axis([10, 90, 0, 0.07])
     plt.show()
 
     # # WRITE OUT RESULTS
@@ -80,7 +90,7 @@ def main(argv):
 ##########
 # TEST
 ##########
-sim_type = "G"
+sim_type = "TL"
 out_dir = None
 
 sbml_file = '/home/sandy/Downloads/simple_sbml.xml'
