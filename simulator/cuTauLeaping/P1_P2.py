@@ -22,7 +22,8 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
                               float* sigma2);
 __device__ float CalculateG(uint x, int i);
 __device__ uint SingleCriticalReaction(unsigned char* xeta, float* a,
-                                       float a_0_c, curandStateMRG32k3a* rstate);
+                                       float a_0_c,
+                                       curandStateMRG32k3a* rstate);
 __device__ void TentativeUpdatedState(int* x_prime, uint* x, int* K);
 __device__ bool ValidState(int* x_prime);
 __device__ void SaveInterpolatedDynamics(uint* x, int* x_prime, float t0,
@@ -58,7 +59,8 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         x[sid][species_idx] = global_x[tid][species_idx];
-		//printf("TL: x[%d] = %d at time %f in thread %d\\n", species_idx, x[sid][species_idx], d_t[tid], tid);
+		//printf("TL: x[%d] = %d at time %f in thread %d\\n", species_idx,
+		//        x[sid][species_idx], d_t[tid], tid);
     }
 
     // 5. c[sid] <- global_c[tid]
@@ -95,12 +97,15 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     if(a_0 == 0)
     {
         // 11. for i <- F[tid]...ita do
-        for(int species_out_idx = 0; species_out_idx < $KAPPA; species_out_idx++)
+        for(int species_out_idx = 0; species_out_idx < $KAPPA;
+            species_out_idx++)
         {
-            for(int time_out_idx = d_F[tid]; time_out_idx < $ITA; time_out_idx++)
+            for(int time_out_idx = d_F[tid]; time_out_idx < $ITA;
+                time_out_idx++)
             {
                 // 13. O[tid][i] <- x[tid]
-                d_O[species_out_idx][time_out_idx][tid] = x[sid][d_E[species_out_idx]];
+                d_O[species_out_idx][time_out_idx][tid] =
+                                                   x[sid][d_E[species_out_idx]];
             }
         // 13. end for
         }
@@ -215,7 +220,8 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
                 // 39. K[j] <- Poisson( Tau, a[sid][j] )
                 float lambda = a[sid][react_idx] * tau;
                 K[sid][react_idx] = curand_poisson(&rstate[sid], lambda);
-                ///printf("reaction %d is NOT CRITICAL, K[%d] = %d in thread %d\\n", react_idx, react_idx, K[sid][react_idx], tid);
+                //printf("reaction %d is NOT CRITICAL, K[%d] = %d in thread %d\\n",
+                //        react_idx, react_idx, K[sid][react_idx], tid);
             }
         // 40. end for
         }
@@ -242,11 +248,13 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     while(d_t[tid] >= d_I[d_F[tid]])
     {
         // 48. SaveInterpolatedDynamics(x, x_prime, O[tid], F[tid])
-        SaveInterpolatedDynamics(x[sid], x_prime[sid], d_t[tid] - tau, d_t[tid], d_F[tid], d_O, tid);
+        SaveInterpolatedDynamics(x[sid], x_prime[sid], d_t[tid] - tau,
+                                 d_t[tid], d_F[tid], d_O, tid);
 
         // 49. F[tid]++
         d_F[tid] = d_F[tid] + 1;
-        //printf("t = %f, d_F = %d, d_I[d_F] = %f\\n", d_t[tid], d_F[tid], d_I[d_F[tid]]);
+        //printf("t = %f, d_F = %d, d_I[d_F] = %f\\n", d_t[tid], d_F[tid],
+        //        d_I[d_F[tid]]);
 
         // 50. if F[tid] = ita then
         if(d_F[tid] == $ITA)
@@ -263,7 +271,8 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         global_x[tid][species_idx] = x_prime[sid][species_idx];
-        //printf("TL: global_x[%d][%d] = %d at time %f\\n", tid, species_idx, global_x[tid][species_idx], d_t[tid]);
+        //printf("TL: global_x[%d][%d] = %d at time %f\\n", tid, species_idx,
+        //        global_x[tid][species_idx], d_t[tid]);
     }
     d_rng[tid] = rstate[sid];
     //printf("time = %f in thread %d\\n", d_t[tid], tid);
@@ -298,7 +307,8 @@ __device__ void DetermineCriticalReactions(unsigned char* xeta, uint* x)
     }
 }
 
-__device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta, float* mu,
+__device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta,
+                                 float* mu,
                                  float* sigma2)
 {
     // need to calculate I_rs, a list of species appearing as a reactant in at
@@ -320,7 +330,9 @@ __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta, float* 
     {
         stoich_elem = d_V[stoich_elem_idx];
 
-//        printf("species: %d, react: %d, reactant?: %d, crit?: %d\\n", stoich_elem.x, stoich_elem.y, I_rs[stoich_elem.x], xeta[stoich_elem.y]);
+        //printf("species: %d, react: %d, reactant?: %d, crit?: %d\\n",
+        //        stoich_elem.x, stoich_elem.y, I_rs[stoich_elem.x],
+        //        xeta[stoich_elem.y]);
 
         if(I_rs[stoich_elem.x] == 1)
         {
@@ -333,17 +345,21 @@ __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta, float* 
                 // reaction j
                 //   and a_j(x) is the propensity of reaction j given
                 // state x
-                mu[stoich_elem.x] = mu[stoich_elem.x] + (stoich_elem.z * a[stoich_elem.y]);
+                mu[stoich_elem.x] = mu[stoich_elem.x] + (stoich_elem.z *
+                                    a[stoich_elem.y]);
 
                 // sigma^2_i = Sum_j_ncr(v_ij^2 * a_j(x)) for all i in {
                 // set of reactant species}
-                sigma2[stoich_elem.x] = sigma2[stoich_elem.x] + ((stoich_elem.z * stoich_elem.z) * a[stoich_elem.y]);
+                sigma2[stoich_elem.x] = sigma2[stoich_elem.x] +
+                                        ((stoich_elem.z * stoich_elem.z) *
+                                        a[stoich_elem.y]);
             }
         }
     }
 }
 
-__device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu, float* sigma2)
+__device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
+                              float* sigma2)
 {
     // set initial tau to some large number, should be infinite
     float tau  = INFINITY;
@@ -379,8 +395,12 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu, float* si
                 float rhs = (numerator_l * numerator_l) / sigma2[stoich_elem.x];
                 float temp_tau = fminf(lhs, rhs);
 
-//                printf("x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[%d] = %f\\n", stoich_elem.x, x[stoich_elem.x], g_i, stoich_elem.x, mu[stoich_elem.x], stoich_elem.x, sigma2[stoich_elem.x]);
-//                printf("numerator_l = %f, lhs = %f, rhs = %f\\n", numerator_l, lhs, rhs);
+                //printf("x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[%d] =%f\\n",
+                //        stoich_elem.x, x[stoich_elem.x], g_i, stoich_elem.x,
+                //        mu[stoich_elem.x], stoich_elem.x,
+                //        sigma2[stoich_elem.x]);
+                //printf("numerator_l = %f, lhs = %f, rhs = %f\\n",
+                //        numerator_l, lhs, rhs);
 
                 if(temp_tau < tau)
                 {
@@ -427,12 +447,14 @@ __device__ float CalculateG(uint x_i, int i)
     }
     else
     {
-        //printf("Species %d HOR is of order %d and therefore a G value can't be calculated for it.\\n", i, d_H[i]);
+        //printf("Species %d HOR is of order %d and therefore a G value can't
+        //        be calculated for it.\\n", i, d_H[i]);
         return 0.;
     }
 }
 
-__device__ uint SingleCriticalReaction(unsigned char* xeta, float* a, float a_0_c,
+__device__ uint SingleCriticalReaction(unsigned char* xeta, float* a,
+                                       float a_0_c,
                                        curandStateMRG32k3a* rstate)
 {
     float rho = curand_uniform(rstate);
@@ -460,8 +482,11 @@ __device__ void TentativeUpdatedState(int* x_prime, uint* x, int* K)
 
     for(int stoich_elem_idx = 0; stoich_elem_idx < $V_SIZE; stoich_elem_idx++)
     {
-        //printf("reaction %d runs %d times with a stoichiometry of %d\\n", d_V[n].y, K[d_V[n].y], d_V[n].z);
-        x_prime[d_V[stoich_elem_idx].x] = x_prime[d_V[stoich_elem_idx].x] + K[d_V[stoich_elem_idx].y] * d_V[stoich_elem_idx].z;
+        //printf("reaction %d runs %d times with a stoichiometry of %d\\n",
+        //        d_V[n].y, K[d_V[n].y], d_V[n].z);
+        x_prime[d_V[stoich_elem_idx].x] = x_prime[d_V[stoich_elem_idx].x] +
+                                          K[d_V[stoich_elem_idx].y] *
+                                          d_V[stoich_elem_idx].z;
     }
 }
 
@@ -488,18 +513,31 @@ __device__ void SaveInterpolatedDynamics(uint* x, int* x_prime, float t0,
     float normalised_record_time = record_time - t0;
     float fractional_record_point = normalised_record_time / time_gap;
 
-    //printf("record: %d, t0: %f, t_end: %f, record_time: %f, fractional_record_point: %f\\n", f, t0, t_Tau, record_time, fractional_record_point);
+    //printf("record: %d, t0: %f, t_end: %f, record_time: %f,
+    //        fractional_record_point: %f\\n", f, t0, t_Tau, record_time,
+    //        fractional_record_point);
 
     for(int species_out_idx = 0; species_out_idx < $KAPPA; species_out_idx++)
     {
-        //printf("d_E[%d]: %d, xprime[%d]: %d, x[%d]: %d\\n", species_out_idx, d_E[species_out_idx], d_E[species_out_idx], x_prime[d_E[species_out_idx]], d_E[species_out_idx], x[d_E[species_out_idx]]);
-        int species_diff = x_prime[d_E[species_out_idx]] - x[d_E[species_out_idx]];
-        float fractional_species_increase = species_diff * fractional_record_point;
+        //printf("d_E[%d]: %d, xprime[%d]: %d, x[%d]: %d\\n",
+        //        species_out_idx, d_E[species_out_idx], d_E[species_out_idx],
+        //        x_prime[d_E[species_out_idx]], d_E[species_out_idx],
+        //        x[d_E[species_out_idx]]);
+        int species_diff = x_prime[d_E[species_out_idx]] -
+                           x[d_E[species_out_idx]];
+        float fractional_species_increase = species_diff *
+                                            fractional_record_point;
 
-        uint species_record_point = x[d_E[species_out_idx]] + __float2int_rn(fractional_species_increase);
-        //printf("species[%u] - species_diff: %d, fractional_species_increase: %f, species_record_point: %u\\n", d_E[species_out_idx], species_diff, fractional_species_increase, species_record_point);
+        uint species_record_point = x[d_E[species_out_idx]] +
+                                    __float2int_rn(fractional_species_increase);
+        //printf("species[%u] - species_diff: %d, fractional_species_increase:
+        //        %f, species_record_point: %u\\n", d_E[species_out_idx],
+        //        species_diff, fractional_species_increase,
+        //        species_record_point);
 
-        //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", species_out_idx, species_out_idx, d_E[species_out_idx], d_E[species_out_idx], x[d_E[species_out_idx]], f);
+        //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", species_out_idx,
+        //        species_out_idx, d_E[species_out_idx], d_E[species_out_idx],
+        //        x[d_E[species_out_idx]], f);
 
         O[species_out_idx][f][tid] = species_record_point;
     }

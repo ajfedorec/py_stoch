@@ -40,7 +40,8 @@ __global__ void kernel_P3(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     // 4. if Q[tid] != 0 then return
     if(d_Q[tid] != 0)
     {
-        //printf("SSA: d_Q = %d, SSA steps not needed in thread %d\\n", d_Q[tid], tid);
+        //printf("SSA: d_Q = %d, SSA steps not needed in thread %d\\n",
+        //        d_Q[tid], tid);
         return;
     // 5. end if
     }
@@ -50,7 +51,8 @@ __global__ void kernel_P3(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         x[sid][species_idx] = global_x[tid][species_idx];
-		//printf("SSA: x[%d] = %d at time %f in thread %d\\n", species_idx, x[sid][species_idx], d_t[tid], tid);
+		//printf("SSA: x[%d] = %d at time %f in thread %d\\n", species_idx,
+		//        x[sid][species_idx], d_t[tid], tid);
     }
 
     // 7. c[sid] <- global_c[tid]
@@ -115,7 +117,8 @@ __global__ void kernel_P3(uint global_x[$THREAD_NUM][$SPECIES_NUM],
         // 21. if T[tid] >= I[F[tid]] then
         if(d_t[tid] >= d_I[d_F[tid]])
         {
-            //printf("d_t = %f,  d_I[d_F] = %f, d_F = %d in thread %d\\n", d_t[tid], d_I[d_F[tid]], d_F[tid], tid);
+            //printf("d_t = %f,  d_I[d_F] = %f, d_F = %d in thread %d\\n",
+            //        d_t[tid], d_I[d_F[tid]], d_F[tid], tid);
             // 22. SaveDynamics(x[sid],O[tid],E[tid])
             SaveDynamics(x[sid], d_F[tid], tid, d_O);
 
@@ -127,7 +130,8 @@ __global__ void kernel_P3(uint global_x[$THREAD_NUM][$SPECIES_NUM],
             {
                 // 25. Q[tid] <- -1
                 d_Q[tid] = -1;
-                //printf("SSA: No more samples: simulation over in thread %d\\n", tid);
+                //printf("SSA: No more samples: simulation over in thread
+                //        %d\\n", tid);
 				break;
             // 26. end if
             }
@@ -138,7 +142,7 @@ __global__ void kernel_P3(uint global_x[$THREAD_NUM][$SPECIES_NUM],
         UpdateState(x[sid], j);
     // 29. end for
     }
-    
+
     // 30. global_x <- x
     for(int i = 0; i < $SPECIES_NUM; i++)
     {
@@ -156,7 +160,8 @@ __device__ void SaveDynamics(uint* x, uint f, uint tid,
     //printf("save dynamics f = %d in thread %d\\n", f, tid);
     for(int i = 0; i < $KAPPA; i++)
     {
-        //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", i, i, d_E[i], d_E[i], x[d_E[i]], f);
+        //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", i, i, d_E[i],
+        //        d_E[i], x[d_E[i]], f);
         O[i][f][tid] = x[d_E[i]];
     }
 }

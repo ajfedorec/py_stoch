@@ -18,7 +18,8 @@ class SPN:
 
         # get reaction reactant stoichiometry matrix Pre
         # get reaction product stoichiometry matrix Post
-        self.Pre, self.Post, self.StoichMConst = self.get_stoichiometries(sbml_model)
+        self.Pre, self.Post, self.StoichMConst = self.get_stoichiometries(
+            sbml_model)
         # print self.Pre
         # print self.Post
 
@@ -56,7 +57,8 @@ class SPN:
     @staticmethod
     def get_reactions_vector(sbml_model):
         t = {}
-        for reaction_idx, reaction in enumerate(sbml_model.getListOfReactions()):
+        for reaction_idx, reaction in enumerate(
+                sbml_model.getListOfReactions()):
             t[reaction.getId()] = reaction_idx
 
         return t
@@ -75,13 +77,15 @@ class SPN:
         products_matrix = np.zeros_like(reactants_matrix)
         constant_matrix = np.zeros_like(reactants_matrix)
 
-        for reaction_idx, reaction in enumerate(sbml_model.getListOfReactions()):
+        for reaction_idx, reaction in enumerate(
+                sbml_model.getListOfReactions()):
             reactants = {r.getSpecies(): r.getStoichiometry() for r in
                          reaction.getListOfReactants()}
             products = {p.getSpecies(): p.getStoichiometry() for p in
                         reaction.getListOfProducts()}
 
-            for species_idx, species in enumerate(sbml_model.getListOfSpecies()):
+            for species_idx, species in enumerate(
+                    sbml_model.getListOfSpecies()):
                 species_id = species.getId()
                 if species_id in reactants.keys():
                     reactants_matrix[species_idx, reaction_idx] = \
@@ -104,7 +108,8 @@ class SPN:
     @staticmethod
     def get_hazards_vector(sbml_model, species_dict, param_dict):
         h = []
-        for reaction_idx, reaction in enumerate(sbml_model.getListOfReactions()):
+        for reaction_idx, reaction in enumerate(
+                sbml_model.getListOfReactions()):
             math = SPN.replace_hazard_species(
                 reaction.getKineticLaw().getMath(),
                 sbml_model)
@@ -141,7 +146,8 @@ class SPN:
     @staticmethod
     def get_rate_constants_vector(sbml_model):
         c = []
-        for constant_idx, constant in enumerate(sbml_model.getListOfParameters()):
+        for constant_idx, constant in enumerate(
+                sbml_model.getListOfParameters()):
             c.append(constant.getValue())
         return c
 

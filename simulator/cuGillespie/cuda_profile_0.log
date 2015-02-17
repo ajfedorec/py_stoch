@@ -1,0 +1,18 @@
+# CUDA_PROFILE_LOG_VERSION 2.0
+# CUDA_DEVICE 0 GeForce GTX 860M
+# CUDA_CONTEXT 1
+# TIMESTAMPFACTOR 13bde51c58a3dda8
+method,gputime,cputime,occupancy
+method=[ memcpyHtoD ] gputime=[ 0.640 ] cputime=[ 4.140 ] 
+method=[ memcpyHtoD ] gputime=[ 0.672 ] cputime=[ 2.550 ] 
+method=[ memcpyHtoD ] gputime=[ 0.640 ] cputime=[ 1.658 ] 
+method=[ memcpyHtoD ] gputime=[ 0.672 ] cputime=[ 1.565 ] 
+method=[ memcpyHtoD ] gputime=[ 0.672 ] cputime=[ 1.535 ] 
+method=[ memcpyHtoD ] gputime=[ 3260.800 ] cputime=[ 3554.858 ] 
+method=[ memcpyHtoD ] gputime=[ 615.424 ] cputime=[ 847.082 ] 
+method=[ memcpyHtoD ] gputime=[ 531.488 ] cputime=[ 721.523 ] 
+method=[ write_size ] gputime=[ 3.264 ] cputime=[ 21.905 ] occupancy=[ 0.250 ] 
+method=[ memcpyDtoH ] gputime=[ 2.208 ] cputime=[ 92.816 ] 
+method=[ init_rng ] gputime=[ 85700.227 ] cputime=[ 11.262 ] occupancy=[ 0.500 ] 
+method=[ kernel_Gillespie ] gputime=[ 3076022.250 ] cputime=[ 13.732 ] occupancy=[ 0.188 ] 
+method=[ memcpyDtoH ] gputime=[ 9435.136 ] cputime=[ 3085765.000 ] 

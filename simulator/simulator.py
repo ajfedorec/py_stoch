@@ -14,7 +14,7 @@ class Simulator:
 
         # T <= floor(MAX_shared / (13M + 8N)) from cuTauLeaping paper eq (5)
         # threads_per_block = math.floor(
-        #     max_shared_mem / (13 * tl_args.M + 8 * tl_args.N))
+        # max_shared_mem / (13 * tl_args.M + 8 * tl_args.N))
         # HOWEVER, for my implementation:
         #   type                size    var     number
         #   curandStateMRG32k3a 80      rstate  1
@@ -26,9 +26,11 @@ class Simulator:
         #   int                 32      x_prime N
         #   T <= floor(Max_shared / (9M + 8N + 4P + 10) (bytes)
         max_shared_mem = cuda_tools.DeviceData().shared_memory
-        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / (9 * tl_args.M + 8 * tl_args.N + 4 * len(tl_args.c)) + 10)
+        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / (
+        9 * tl_args.M + 8 * tl_args.N + 4 * len(tl_args.c)) + 10)
 
-        max_threads_per_block = min(hw_constrained_threads_per_block, shared_mem_constrained_threads_per_block)
+        max_threads_per_block = min(hw_constrained_threads_per_block,
+                                    shared_mem_constrained_threads_per_block)
 
         warp_size = cuda_tools.DeviceData().warp_size
 
@@ -51,7 +53,6 @@ class Simulator:
         tl_args.U = int(grid_size * block_size)
 
         return grid_size, block_size
-
 
 
 class StochasticSimulator(Simulator):
@@ -84,7 +85,8 @@ class StochasticSimulator(Simulator):
         module = SourceModule(init_rng_src, no_extern_c=True)
         init_rng = module.get_function('init_rng')
 
-        init_rng(numpy.int32(size), rng_states, numpy.uint64(0), block=(64, 1, 1),
+        init_rng(numpy.int32(size), rng_states, numpy.uint64(0),
+                 block=(64, 1, 1),
                  grid=(size // 64 + 1, 1))
 
         return rng_states

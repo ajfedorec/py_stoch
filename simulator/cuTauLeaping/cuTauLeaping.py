@@ -14,7 +14,8 @@ from simulator import StochasticSimulator
 class CuTauLeaping(StochasticSimulator):
     # def cu_tau_leaping(sbml_model, sim_info):
     def run(self, sbml_model):
-        # 2. A, V, V_t, V_bar, H, H_type <- CalculateDataStructures(MA, MB, x_0, c)
+        # 2. A, V, V_t, V_bar, H, H_type <- CalculateDataStructures(MA, MB,
+        # x_0, c)
         my_args = TlParser.parse(sbml_model)
 
         # 5. gridSize, blockSize <- DistributeWorkload(U)
@@ -44,7 +45,8 @@ class CuTauLeaping(StochasticSimulator):
             # 8.    ( A, V, V_t, V_bar, H, H_type, x, c, I, E, O, Q, t )
             kernel_P1_P2 = P1_P2_kernel.get_function('kernel_P1_P2')
             kernel_P1_P2(d_x, d_O, d_Q, d_t, d_F, d_rng,
-                         grid=(int(grid_size), 1, 1), block=(int(block_size), 1, 1))
+                         grid=(int(grid_size), 1, 1),
+                         block=(int(block_size), 1, 1))
 
             # x, E, O, Q, t, F = GetGlobals(d_x, d_E, d_O, d_Q, d_t, d_F)
             # FreeMemoryOnGPU(d_x, d_E, d_O, d_Q, d_t, d_F)
@@ -53,7 +55,8 @@ class CuTauLeaping(StochasticSimulator):
             # 10.   ( A, V, x, c, I, E, O, Q, t )
             # d_x, d_E, d_O, d_Q, d_t, d_F  = AllocateGlobals(x, E, O, Q, t, F)
             kernel_P3 = P3_kernel.get_function('kernel_P3')
-            kernel_P3(d_x, d_O, d_Q, d_t, d_F, d_rng, grid=(int(grid_size), 1, 1),
+            kernel_P3(d_x, d_O, d_Q, d_t, d_F, d_rng,
+                      grid=(int(grid_size), 1, 1),
                       block=(int(block_size), 1, 1))
 
             # x, O, Q, t, F = GetGlobals(d_x, d_O, d_Q, d_t, d_F)
@@ -70,7 +73,7 @@ class CuTauLeaping(StochasticSimulator):
         O = d_O.get()
         return O
 
-# 13. end procedure
+    # 13. end procedure
 
     def LoadDataOnGPU(self, tl_args, module):
         d_A = module.get_global('d_A')[0]
@@ -149,11 +152,12 @@ class CuTauLeaping(StochasticSimulator):
     def CalculateSizes(self, tl_args):
         import pycuda.tools as cuda_tools
         import math
+
         hw_constrained_threads_per_block = cuda_tools.DeviceData().max_threads
 
         # T <= floor(MAX_shared / (13M + 8N)) from cuTauLeaping paper eq (5)
         # threads_per_block = math.floor(
-        #     max_shared_mem / (13 * tl_args.M + 8 * tl_args.N))
+        # max_shared_mem / (13 * tl_args.M + 8 * tl_args.N))
         # HOWEVER, for my implementation:
         #   type                size    var     number
         #   curandStateMRG32k3a 80      rstate  1
@@ -165,9 +169,11 @@ class CuTauLeaping(StochasticSimulator):
         #   int                 32      x_prime N
         #   T <= floor(Max_shared / (9M + 8N + 4P + 10) (bytes)
         max_shared_mem = cuda_tools.DeviceData().shared_memory
-        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / (9 * tl_args.M + 8 * tl_args.N + 4 * len(tl_args.c)) + 10)
+        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / (
+        9 * tl_args.M + 8 * tl_args.N + 4 * len(tl_args.c)) + 10)
 
-        max_threads_per_block = min(hw_constrained_threads_per_block, shared_mem_constrained_threads_per_block)
+        max_threads_per_block = min(hw_constrained_threads_per_block,
+                                    shared_mem_constrained_threads_per_block)
 
         warp_size = cuda_tools.DeviceData().warp_size
 
@@ -206,7 +212,7 @@ class CuTauLeaping(StochasticSimulator):
 # # check the SBML for errors
 # error_count = document.getNumErrors()
 # if error_count > 0:
-#     raise UserWarning(error_count + ' errors in SBML file: ' + open_file_.name)
+# raise UserWarning(error_count + ' errors in SBML file: ' + open_file_.name)
 # sbml_model = document.getModel()
 #
 # O = cu_tau_leaping(sbml_model)
