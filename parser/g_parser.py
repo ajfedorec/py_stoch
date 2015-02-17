@@ -29,7 +29,7 @@ class GArgs:
         self.I = numpy.array([])  # instances for recording
 
         # self.U = 998400
-        self.U = 128000
+        self.U = 1280000
 
 
 class GParser(Parser):

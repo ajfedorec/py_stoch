@@ -41,14 +41,14 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     int tid = threadIdx.x + (blockIdx.x * blockDim.x);
 
     // 3. sid <- getLocalId()
-    int sid = threadIdx.x;    
-    
+    int sid = threadIdx.x;
+
     // Uncomment this to force gillespie
-    if(d_Q[tid] != -1)
-    {
-       d_Q[tid] = 0;
-        return;
-    }
+    //if(d_Q[tid] != -1)
+    //{
+    //   d_Q[tid] = 0;
+    //    return;
+    //}
 
     __shared__ curandStateMRG32k3a rstate[$BLOCK_SIZE];
     rstate[sid] = d_rng[tid];
@@ -301,7 +301,6 @@ __device__ void DetermineCriticalReactions(unsigned char* xeta, uint* x)
 __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta, float* mu,
                                  float* sigma2)
 {
-    // ***** THIS ISN'T YET CORRECT*****
     // need to calculate I_rs, a list of species appearing as a reactant in at
     // least one reaction
     unsigned char I_rs[$SPECIES_NUM];
@@ -312,18 +311,20 @@ __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta, float* 
     for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
     {
         I_rs[d_A[pre_elem_idx].x] = 1;
-    }   
-    
+    }
+
     char4 stoich_elem;
-              
+
     // we loop over each non-zero element in the stoichiometry matrix
     for(int stoich_elem_idx = 0; stoich_elem_idx < $V_SIZE; stoich_elem_idx++)
     {
         stoich_elem = d_V[stoich_elem_idx];
-        
+
+//        printf("species: %d, react: %d, reactant?: %d, crit?: %d\\n", stoich_elem.x, stoich_elem.y, I_rs[stoich_elem.x], xeta[stoich_elem.y]);
+
         if(I_rs[stoich_elem.x] == 1)
         {
-            // if the reaction (d_V[v].y) is not critical
+            // if the reaction (stoich_elem.y) is not critical
             if(xeta[stoich_elem.y] == 0)
             {
                 // mu_i = Sum_j_ncr(v_ij * a_j(x)) for all i in {set of
@@ -347,25 +348,44 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu, float* si
     // set initial tau to some large number, should be infinite
     float tau  = INFINITY;
 
-    // we loop over each reactant
+    // need to calculate I_rs, a list of species appearing as a reactant in at
+    // least one reaction
+    unsigned char I_rs[$SPECIES_NUM];
+    for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
+    {
+        I_rs[species_idx] = 0;
+    }
     for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
     {
-        // if the reactant (d_A[i]) is in a non-critical reaction
-        if(xeta[d_A[pre_elem_idx].y] == 0)
+        I_rs[d_A[pre_elem_idx].x] = 1;
+    }
+
+    char4 stoich_elem;
+    // we loop over each non-zero element in the stoichiometry matrix
+    for(int stoich_elem_idx = 0; stoich_elem_idx < $V_SIZE; stoich_elem_idx++)
+    {
+        stoich_elem = d_V[stoich_elem_idx];
+
+        if(I_rs[stoich_elem.x] == 1)
         {
-            float g_i = CalculateG(x[d_A[pre_elem_idx].x], d_A[pre_elem_idx].x);
 
-            float numerator_l = fmaxf(($ETA * x[d_A[pre_elem_idx].x] / g_i), 1.);
-            float lhs = numerator_l /  fabsf(mu[d_A[pre_elem_idx].x]);
-            float rhs = (numerator_l * numerator_l) / sigma2[d_A[pre_elem_idx].x];
-            float temp_tau = fminf(lhs, rhs);
-
-            //printf("x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[%d] = %f\\n", d_A[pre_elem_idx].x, x[d_A[pre_elem_idx].x], g_i, d_A[pre_elem_idx].x, mu[d_A[pre_elem_idx].x], d_A[pre_elem_idx].x, sigma2[d_A[pre_elem_idx].x]);
-            //printf("numerator_l = %f, lhs = %f, rhs = %f\\n", numerator_l, lhs, rhs);
-
-            if(temp_tau < tau)
+            // if the reactant (d_A[i]) is in a non-critical reaction
+            if(xeta[stoich_elem.y] == 0)
             {
-                tau = temp_tau;
+                float g_i = CalculateG(x[stoich_elem.x], stoich_elem.x);
+
+                float numerator_l = fmaxf(($ETA * x[stoich_elem.x] / g_i), 1.);
+                float lhs = numerator_l /  fabsf(mu[stoich_elem.x]);
+                float rhs = (numerator_l * numerator_l) / sigma2[stoich_elem.x];
+                float temp_tau = fminf(lhs, rhs);
+
+//                printf("x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[%d] = %f\\n", stoich_elem.x, x[stoich_elem.x], g_i, stoich_elem.x, mu[stoich_elem.x], stoich_elem.x, sigma2[stoich_elem.x]);
+//                printf("numerator_l = %f, lhs = %f, rhs = %f\\n", numerator_l, lhs, rhs);
+
+                if(temp_tau < tau)
+                {
+                    tau = temp_tau;
+                }
             }
         }
     }
@@ -478,7 +498,7 @@ __device__ void SaveInterpolatedDynamics(uint* x, int* x_prime, float t0,
 
         uint species_record_point = x[d_E[species_out_idx]] + __float2int_rn(fractional_species_increase);
         //printf("species[%u] - species_diff: %d, fractional_species_increase: %f, species_record_point: %u\\n", d_E[species_out_idx], species_diff, fractional_species_increase, species_record_point);
-        
+
         //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", species_out_idx, species_out_idx, d_E[species_out_idx], d_E[species_out_idx], x[d_E[species_out_idx]], f);
 
         O[species_out_idx][f][tid] = species_record_point;

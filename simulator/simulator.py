@@ -10,26 +10,47 @@ from pycuda.compiler import SourceModule
 
 class Simulator:
     def CalculateSizes(self, tl_args):
-        max_threads_per_block = cuda_tools.DeviceData().max_threads
-        max_shared_mem = cuda_tools.DeviceData().shared_memory
-        warp_size = cuda_tools.DeviceData().warp_size
+        hw_constrained_threads_per_block = cuda_tools.DeviceData().max_threads
 
         # T <= floor(MAX_shared / (13M + 8N)) from cuTauLeaping paper eq (5)
-        threads_per_block = math.floor(
-            max_shared_mem / (13 * tl_args.M + 8 * tl_args.N))
+        # threads_per_block = math.floor(
+        #     max_shared_mem / (13 * tl_args.M + 8 * tl_args.N))
+        # HOWEVER, for my implementation:
+        #   type                size    var     number
+        #   curandStateMRG32k3a 80      rstate  1
+        #   uint                32      x       N
+        #   float               32      c       P
+        #   float               32      a       M
+        #   u char              8       Xeta    M
+        #   int                 32      K       M
+        #   int                 32      x_prime N
+        #   T <= floor(Max_shared / (9M + 8N + 4P + 10) (bytes)
+        max_shared_mem = cuda_tools.DeviceData().shared_memory
+        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / (9 * tl_args.M + 8 * tl_args.N + 4 * len(tl_args.c)) + 10)
+
+        max_threads_per_block = min(hw_constrained_threads_per_block, shared_mem_constrained_threads_per_block)
+
+        warp_size = cuda_tools.DeviceData().warp_size
 
         # optimal T is a multiple of warp size
-        max_optimal_threads_per_block = min(
-            math.floor(threads_per_block / warp_size) * warp_size,
-            max_threads_per_block)
+        max_warps_per_block = math.floor(max_threads_per_block / warp_size)
+        max_optimal_threads_per_block = max_warps_per_block * warp_size
 
-        blocks = math.ceil(tl_args.U / 128)
+        if max_optimal_threads_per_block >= 256:
+            block_size = 256
+        elif max_optimal_threads_per_block >= 128:
+            block_size = 128
+        else:
+            block_size = max_optimal_threads_per_block
 
+        if tl_args.U <= 2:
+            block_size = tl_args.U
 
-        # grid size is equal to the number of blocks we need
-        # grid_size = math.ceil(tl_args.U / optimal_threads_per_block)
+        grid_size = int(math.ceil(float(tl_args.U) / float(block_size)))
 
-        return blocks, 128
+        tl_args.U = int(grid_size * block_size)
+
+        return grid_size, block_size
 
 
 
