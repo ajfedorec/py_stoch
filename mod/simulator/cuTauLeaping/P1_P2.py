@@ -6,36 +6,56 @@ extern "C" {
 // CONSTANT MEMORY
 __device__ __constant__ char4 d_A[$A_SIZE]; // flattened Pre matrix
 __device__ __constant__ char4 d_V[$V_SIZE]; // flattened Stoichiometry matrix
-__device__ __constant__ unsigned char d_H[$SPECIES_NUM]; // HORs vector
-__device__ __constant__ unsigned char d_H_type[$SPECIES_NUM]; //
-__device__ __constant__ float d_c[$PARAM_NUM]; // parameters vector
-__device__ __constant__ float d_I[$ITA + 1];  // output time points
-__device__ __constant__ unsigned char d_E[$KAPPA]; // outpu species indexes
+__device__ __constant__ int d_H[$SPECIES_NUM]; // HORs vector
+__device__ __constant__ int d_H_type[$SPECIES_NUM]; //
+__device__ __constant__ double d_c[$PARAM_NUM]; // parameters vector
+__device__ __constant__ float d_I[$ITA];  // output time points
+__device__ __constant__ int d_E[$KAPPA];  // output species indexes
 
 // FUNCTION DECLARATIONS
-__device__ void UpdatePropensities(float* a, uint* x, float* c);
-__device__ void GetSpecies(uint* temp, uint* x);
-__device__ void DetermineCriticalReactions(unsigned char* xeta, uint* x);
-__device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta,
-                                 float* mu, float* sigma2);
-__device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
-                              float* sigma2);
-__device__ float CalculateG(uint x, int i);
-__device__ uint SingleCriticalReaction(unsigned char* xeta, float* a,
-                                       float a_0_c,
-                                       curandStateMRG32k3a* rstate);
-__device__ void TentativeUpdatedState(int* x_prime, uint* x, int* K);
-__device__ bool ValidState(int* x_prime);
-__device__ void SaveInterpolatedDynamics(uint* x, int* x_prime, float t0,
-                                         float t_Tau, uint f,
-                                         uint O[$KAPPA][$ITA][$THREAD_NUM],
+__device__ void UpdatePropensities(double a[$REACT_NUM],
+                                   int x[$SPECIES_NUM]);
+
+__device__ void DetermineCriticalReactions(int xeta[$REACT_NUM],
+                                           int x[$SPECIES_NUM]);
+
+__device__ void CalculateMuSigma(int x[$SPECIES_NUM],
+                                 double a[$REACT_NUM],
+                                 int xeta[$REACT_NUM],
+                                 double mu[$SPECIES_NUM],
+                                 double sigma2[$SPECIES_NUM]);
+
+__device__ double CalculateTau(int xeta[$REACT_NUM],
+                               int x[$SPECIES_NUM],
+                               double mu[$SPECIES_NUM],
+                               double sigma2[$SPECIES_NUM]);
+
+__device__ double CalculateG(int x_idx, int i);
+
+__device__ int SingleCriticalReaction(int xeta[$REACT_NUM],
+                                      double a[$REACT_NUM],
+                                      double a_0_c,
+                                      curandStateMRG32k3a* rstate);
+
+__device__ void TentativeUpdatedState(int x_prime[$SPECIES_NUM],
+                                      int x[$SPECIES_NUM],
+                                      int K[$REACT_NUM]);
+
+__device__ bool ValidState(int x_prime[$SPECIES_NUM]);
+
+__device__ void SaveInterpolatedDynamics(int x[$SPECIES_NUM],
+                                         int x_prime[$SPECIES_NUM],
+                                         double t0,
+                                         double t_Tau,
+                                         int f,
+                                         int O[$KAPPA][$ITA][$THREAD_NUM],
                                          int tid);
 
-__global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
-                             uint d_O[$KAPPA][$ITA][$THREAD_NUM],
+__global__ void kernel_P1_P2(int global_x[$THREAD_NUM][$SPECIES_NUM],
+                             int d_O[$KAPPA][$ITA][$THREAD_NUM],
                              int d_Q[$THREAD_NUM],
-                             float d_t[$THREAD_NUM],
-                             uint d_F[$THREAD_NUM],
+                             double d_t[$THREAD_NUM],
+                             int d_F[$THREAD_NUM],
                              curandStateMRG32k3a d_rng[$THREAD_NUM])
 {
     // 2. tid <- getGlobalId()
@@ -47,7 +67,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     // Uncomment this to force gillespie
     //if(d_Q[tid] != -1)
     //{
-    //   d_Q[tid] = 0;
+    //    d_Q[tid] = 0;
     //    return;
     //}
 
@@ -55,19 +75,12 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     rstate[sid] = d_rng[tid];
 
     // 4. x[sid] <- global_x[tid]
-    __shared__ uint x[$BLOCK_SIZE][$SPECIES_NUM];
+    __shared__ int x[$BLOCK_SIZE][$SPECIES_NUM];
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         x[sid][species_idx] = global_x[tid][species_idx];
 		//printf("TL: x[%d] = %d at time %f in thread %d\\n", species_idx,
 		//        x[sid][species_idx], d_t[tid], tid);
-    }
-
-    // 5. c[sid] <- global_c[tid]
-    __shared__ float c[$BLOCK_SIZE][$PARAM_NUM];
-    for(int param_idx = 0; param_idx < $PARAM_NUM; param_idx++)
-    {
-        c[sid][param_idx] = d_c[param_idx];
     }
 
     // 6. if Q[tid] = -1 then return
@@ -79,15 +92,15 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     }
 
     // 8. a <- UpdatePropensities( x[sid], c{tid] )
-    __shared__ float a[$BLOCK_SIZE][$REACT_NUM];
+    __shared__ double a[$BLOCK_SIZE][$REACT_NUM];
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
     {
         a[sid][react_idx] = 0.;
     }
-    UpdatePropensities(a[sid], x[sid], c[sid]);
+    UpdatePropensities(a[sid], x[sid]);
 
     // 9. a0 <- Sum(a)
-    float a_0 = 0.;
+    double a_0 = 0.;
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
     {
         a_0 = a_0 + a[sid][react_idx];
@@ -118,7 +131,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     }
 
     // 17. Xeta <- DetermineCriticalReactions( A, x[sid] )
-    __shared__ unsigned char Xeta[$BLOCK_SIZE][$REACT_NUM];
+    __shared__ int Xeta[$BLOCK_SIZE][$REACT_NUM];
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
     {
         Xeta[sid][react_idx] = 0;
@@ -126,17 +139,17 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     DetermineCriticalReactions(Xeta[sid], x[sid]);
 
     // 18. mu, sigma <- CalculateMuSigma( x[sid], H, H_type, a[sid], Xeta[sid])
-    float mu[$A_SIZE];
-    float sigma2[$A_SIZE];
-    for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
+    __shared__ double mu[$BLOCK_SIZE][$SPECIES_NUM];
+    __shared__ double sigma2[$BLOCK_SIZE][$SPECIES_NUM];
+    for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
-        mu[pre_elem_idx] = 0.;
-        sigma2[pre_elem_idx] = 0.;
+        mu[sid][species_idx] = 0.;
+        sigma2[sid][species_idx] = 0.;
     }
-    CalculateMuSigma(x[sid], a[sid], Xeta[sid], mu, sigma2);
+    CalculateMuSigma(x[sid], a[sid], Xeta[sid], mu[sid], sigma2[sid]);
 
     // 19. Tau_1 <- CalculateTau(mu, sigma)
-    float tau_1 = CalculateTau(Xeta[sid], x[sid], mu, sigma2);
+    double tau_1 = CalculateTau(Xeta[sid], x[sid], mu[sid], sigma2[sid]);
     //printf("tau_1 = %f in thread %d\\n", tau_1, tid);
 
     // 20. if Tau_1 < 10./a_0 then
@@ -163,7 +176,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     {
         K[sid][react_idx] = 0;
     }
-    float a_0_c = 0.;
+    double a_0_c = 0.;
 
     // 27. for all j in Xeta do
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
@@ -180,24 +193,24 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     //printf("a0c = %f in thread %d\\n", a_0_c, tid);
 
     // 30. if a_0_c > 0 then Tau_2 <- (1./a_0_c) * ln(1./rho_1)
-    float tau_2 = INFINITY;
+    double tau_2 = INFINITY;
     if(a_0_c > 0.)
     {
-        float rho_1 = curand_uniform(&rstate[sid]);
+        double rho_1 = curand_uniform(&rstate[sid]);
         //printf("rho_1 = %f in thread %d\\n", rho_1, tid);
-        tau_2 = (1. / a_0_c) * logf(1. / rho_1);
+        tau_2 = (1. / a_0_c) * log(1. / rho_1);
     // 31. end if
     }
     ///printf("tau_2 = %f in thread %d\\n", tau_2, tid);
 
     // 32. Tau <- min{Tau_1, Tau_2}
-    float tau = fminf(tau_1, tau_2);
+    double tau = fminf(tau_1, tau_2);
 
     // 33. if Tau_1 > Tau_2 then
     if(tau_1 > tau_2)
     {
         // 34. j <- SingleCriticalReaction( Xeta[tid], a[tid] )
-        uint j = SingleCriticalReaction(Xeta[sid], a[sid], a_0_c, &rstate[sid]);
+        int j = SingleCriticalReaction(Xeta[sid], a[sid], a_0_c, &rstate[sid]);
         //printf("critical reaction %d will be run\\n", j);
         // 35. K[j] <- 1
         K[sid][j] = 1;
@@ -209,6 +222,8 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
     {
         x_prime[sid][species_idx] = 0;
     }
+
+    double lambda = 0.;
     // 37. repeat
     while(true)
     {
@@ -218,7 +233,7 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
             if(Xeta[sid][react_idx] == 0)
             {
                 // 39. K[j] <- Poisson( Tau, a[sid][j] )
-                float lambda = a[sid][react_idx] * tau;
+                lambda = a[sid][react_idx] * tau;
                 K[sid][react_idx] = curand_poisson(&rstate[sid], lambda);
                 //printf("reaction %d is NOT CRITICAL, K[%d] = %d in thread %d\\n",
                 //        react_idx, react_idx, K[sid][react_idx], tid);
@@ -279,7 +294,8 @@ __global__ void kernel_P1_P2(uint global_x[$THREAD_NUM][$SPECIES_NUM],
 // 55. end procedure
 }
 
-__device__ void DetermineCriticalReactions(unsigned char* xeta, uint* x)
+__device__ void DetermineCriticalReactions(int xeta[$REACT_NUM],
+                                           int x[$SPECIES_NUM])
 {
     //// we loop over each reactant, d_A
     //for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
@@ -293,34 +309,38 @@ __device__ void DetermineCriticalReactions(unsigned char* xeta, uint* x)
             //xeta[d_A[pre_elem_idx].y] = 1;
         //}
     //}
+    char4 stoich_elem;
     for(int stoich_elem_idx = 0; stoich_elem_idx < $V_SIZE; stoich_elem_idx++)
     {
-        if(d_V[stoich_elem_idx].z < 0)
+        stoich_elem = d_V[stoich_elem_idx];
+        if(int(stoich_elem.z) < 0)
         {
             // this line is a hack to do a quick abs(x) for integers
-            int abs_stoich = d_V[stoich_elem_idx].z < 0 ? -d_V[stoich_elem_idx].z : d_V[stoich_elem_idx].z;
-            if((abs_stoich * $N_C) > x[d_V[stoich_elem_idx].x])
+            int abs_stoich = int(stoich_elem.z) < 0 ? -int(stoich_elem.z) : int(stoich_elem.z);
+            if((abs_stoich * $N_C) > x[int(stoich_elem.x)])
             {
-                xeta[d_V[stoich_elem_idx].y] = 1;
+                xeta[int(stoich_elem.y)] = 1;
             }
         }
     }
 }
 
-__device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta,
-                                 float* mu,
-                                 float* sigma2)
+__device__ void CalculateMuSigma(int x[$SPECIES_NUM],
+                                 double a[$REACT_NUM],
+                                 int xeta[$REACT_NUM],
+                                 double mu[$SPECIES_NUM],
+                                 double sigma2[$SPECIES_NUM])
 {
     // need to calculate I_rs, a list of species appearing as a reactant in at
     // least one reaction
-    unsigned char I_rs[$SPECIES_NUM];
+    int I_rs[$SPECIES_NUM];
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         I_rs[species_idx] = 0;
     }
     for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
     {
-        I_rs[d_A[pre_elem_idx].x] = 1;
+        I_rs[int(d_A[pre_elem_idx].x)] = 1;
     }
 
     char4 stoich_elem;
@@ -334,10 +354,10 @@ __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta,
         //        stoich_elem.x, stoich_elem.y, I_rs[stoich_elem.x],
         //        xeta[stoich_elem.y]);
 
-        if(I_rs[stoich_elem.x] == 1)
+        if(I_rs[int(stoich_elem.x)] == 1)
         {
             // if the reaction (stoich_elem.y) is not critical
-            if(xeta[stoich_elem.y] == 0)
+            if(xeta[int(stoich_elem.y)] == 0)
             {
                 // mu_i = Sum_j_ncr(v_ij * a_j(x)) for all i in {set of
                 // reactant species}
@@ -345,35 +365,37 @@ __device__ void CalculateMuSigma(uint* x, float* a, unsigned char* xeta,
                 // reaction j
                 //   and a_j(x) is the propensity of reaction j given
                 // state x
-                mu[stoich_elem.x] = mu[stoich_elem.x] + (stoich_elem.z *
-                                    a[stoich_elem.y]);
+                mu[int(stoich_elem.x)] = mu[int(stoich_elem.x)] + (int(stoich_elem.z) *
+                                    a[int(stoich_elem.y)]);
 
                 // sigma^2_i = Sum_j_ncr(v_ij^2 * a_j(x)) for all i in {
                 // set of reactant species}
-                sigma2[stoich_elem.x] = sigma2[stoich_elem.x] +
-                                        ((stoich_elem.z * stoich_elem.z) *
-                                        a[stoich_elem.y]);
+                sigma2[int(stoich_elem.x)] = sigma2[int(stoich_elem.x)] +
+                                        ((int(stoich_elem.z) * int(stoich_elem.z)) *
+                                        a[int(stoich_elem.y)]);
             }
         }
     }
 }
 
-__device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
-                              float* sigma2)
+__device__ double CalculateTau(int xeta[$REACT_NUM],
+                               int x[$SPECIES_NUM],
+                               double mu[$SPECIES_NUM],
+                               double sigma2[$SPECIES_NUM])
 {
     // set initial tau to some large number, should be infinite
-    float tau  = INFINITY;
+    double tau  = INFINITY;
 
     // need to calculate I_rs, a list of species appearing as a reactant in at
     // least one reaction
-    unsigned char I_rs[$SPECIES_NUM];
+    int I_rs[$SPECIES_NUM];
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         I_rs[species_idx] = 0;
     }
     for(int pre_elem_idx = 0; pre_elem_idx < $A_SIZE; pre_elem_idx++)
     {
-        I_rs[d_A[pre_elem_idx].x] = 1;
+        I_rs[int(d_A[pre_elem_idx].x)] = 1;
     }
 
     char4 stoich_elem;
@@ -382,18 +404,18 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
     {
         stoich_elem = d_V[stoich_elem_idx];
 
-        if(I_rs[stoich_elem.x] == 1)
+        if(I_rs[int(stoich_elem.x)] == 1)
         {
 
             // if the reactant (d_A[i]) is in a non-critical reaction
-            if(xeta[stoich_elem.y] == 0)
+            if(xeta[int(stoich_elem.y)] == 0)
             {
-                float g_i = CalculateG(x[stoich_elem.x], stoich_elem.x);
+                double g_i = CalculateG(x[int(stoich_elem.x)], int(stoich_elem.x));
 
-                float numerator_l = fmaxf(($ETA * x[stoich_elem.x] / g_i), 1.);
-                float lhs = numerator_l /  fabsf(mu[stoich_elem.x]);
-                float rhs = (numerator_l * numerator_l) / sigma2[stoich_elem.x];
-                float temp_tau = fminf(lhs, rhs);
+                double numerator_l = fmaxf(($ETA * x[int(stoich_elem.x)] / g_i), 1.);
+                double lhs = numerator_l /  fabsf(mu[int(stoich_elem.x)]);
+                double rhs = (numerator_l * numerator_l) / sigma2[int(stoich_elem.x)];
+                double temp_tau = fminf(lhs, rhs);
 
                 //printf("x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[%d] =%f\\n",
                 //        stoich_elem.x, x[stoich_elem.x], g_i, stoich_elem.x,
@@ -401,6 +423,8 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
                 //        sigma2[stoich_elem.x]);
                 //printf("numerator_l = %f, lhs = %f, rhs = %f\\n",
                 //        numerator_l, lhs, rhs);
+
+                //printf("character %c, integer %d, cast int %d\\n", stoich_elem.x, stoich_elem.x, int(stoich_elem.x));
 
                 if(temp_tau < tau)
                 {
@@ -412,7 +436,7 @@ __device__ float CalculateTau(unsigned char* xeta, uint* x, float* mu,
     return tau;
 }
 
-__device__ float CalculateG(uint x_i, int i)
+__device__ double CalculateG(int x_i, int i)
 {
     //printf("d_H[%d] = %d\\n", i, d_H[i]);
     if(d_H[i] == 1)
@@ -453,12 +477,13 @@ __device__ float CalculateG(uint x_i, int i)
     }
 }
 
-__device__ uint SingleCriticalReaction(unsigned char* xeta, float* a,
-                                       float a_0_c,
-                                       curandStateMRG32k3a* rstate)
+__device__ int SingleCriticalReaction(int xeta[$REACT_NUM],
+                                      double a[$REACT_NUM],
+                                      double a_0_c,
+                                      curandStateMRG32k3a* rstate)
 {
-    float rho = curand_uniform(rstate);
-    float rcount = 0.;
+    double rho = curand_uniform(rstate);
+    double rcount = 0.;
 
     for(int react_idx = 0; react_idx < $REACT_NUM; react_idx++)
     {
@@ -473,24 +498,28 @@ __device__ uint SingleCriticalReaction(unsigned char* xeta, float* a,
     }
 }
 
-__device__ void TentativeUpdatedState(int* x_prime, uint* x, int* K)
+__device__ void TentativeUpdatedState(int x_prime[$SPECIES_NUM],
+                                      int x[$SPECIES_NUM],
+                                      int K[$REACT_NUM])
 {
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         x_prime[species_idx] = x[species_idx];
     }
 
+    char4 stoich_elem;
     for(int stoich_elem_idx = 0; stoich_elem_idx < $V_SIZE; stoich_elem_idx++)
     {
+        stoich_elem = d_V[stoich_elem_idx];
         //printf("reaction %d runs %d times with a stoichiometry of %d\\n",
         //        d_V[n].y, K[d_V[n].y], d_V[n].z);
-        x_prime[d_V[stoich_elem_idx].x] = x_prime[d_V[stoich_elem_idx].x] +
-                                          K[d_V[stoich_elem_idx].y] *
-                                          d_V[stoich_elem_idx].z;
+        x_prime[int(stoich_elem.x)] = x_prime[int(stoich_elem.x)] +
+                                          K[int(stoich_elem.y)] *
+                                          int(stoich_elem.z);
     }
 }
 
-__device__ bool ValidState(int* x_prime)
+__device__ bool ValidState(int x_prime[$SPECIES_NUM])
 {
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
@@ -502,16 +531,19 @@ __device__ bool ValidState(int* x_prime)
     return true;
 }
 
-__device__ void SaveInterpolatedDynamics(uint* x, int* x_prime, float t0,
-                                         float t_Tau, uint f,
-                                         uint O[$KAPPA][$ITA][$THREAD_NUM],
+__device__ void SaveInterpolatedDynamics(int x[$SPECIES_NUM],
+                                         int x_prime[$SPECIES_NUM],
+                                         double t0,
+                                         double t_Tau,
+                                         int f,
+                                         int O[$KAPPA][$ITA][$THREAD_NUM],
                                          int tid)
 {
     float record_time = d_I[f];
 
-    float time_gap = t_Tau - t0;
-    float normalised_record_time = record_time - t0;
-    float fractional_record_point = normalised_record_time / time_gap;
+    double time_gap = t_Tau - t0;
+    double normalised_record_time = record_time - t0;
+    double fractional_record_point = normalised_record_time / time_gap;
 
     //printf("record: %d, t0: %f, t_end: %f, record_time: %f,
     //        fractional_record_point: %f\\n", f, t0, t_Tau, record_time,
@@ -525,10 +557,10 @@ __device__ void SaveInterpolatedDynamics(uint* x, int* x_prime, float t0,
         //        x[d_E[species_out_idx]]);
         int species_diff = x_prime[d_E[species_out_idx]] -
                            x[d_E[species_out_idx]];
-        float fractional_species_increase = species_diff *
+        double fractional_species_increase = species_diff *
                                             fractional_record_point;
 
-        uint species_record_point = x[d_E[species_out_idx]] +
+        int species_record_point = x[d_E[species_out_idx]] +
                                     __float2int_rn(fractional_species_increase);
         //printf("species[%u] - species_diff: %d, fractional_species_increase:
         //        %f, species_record_point: %u\\n", d_E[species_out_idx],

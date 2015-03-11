@@ -39,7 +39,7 @@ import numpy
 import sympy
 
 from parser import Parser
-from petri_net import SPN
+from mod.petri_net import SPN
 
 
 class TlArgs:
@@ -67,38 +67,33 @@ class TlArgs:
         self.H_type = []
 
         # these should be taken from a simulation set up xml
-        self.E = numpy.array([0, 1, 2]).astype(
-            numpy.uint8)  # indices of the output species
-        self.ita = 2  # number of time recording points
-        self.kappa = len(self.E)  # number of species we're recording
-        self.n_c = 10  # tauLeaping critical reaction threshold, default=10
-        self.eta = 0.03  # tauLeaping error control param, default=0.03
-        self.t_max = 0.1  # the time at which the simulation ends
+        self.E = numpy.array([0]).astype(
+            numpy.int32)  # indices of the output species
+        self.t_max = 1  # the time at which the simulation ends
+        self.ita = 11  # number of time recording points
+        self.U = 128
 
+        # these are derived from setup params above
+        self.kappa = len(self.E)  # number of species we're recording
         self.I = numpy.array([])  # instances for recording
 
-        # self.U = 998400
-        self.U = 1280000
+        # these are default values that I won't change for now
+        self.n_c = 10  # tauLeaping critical reaction threshold, default=10
+        self.eta = 0.03  # tauLeaping error control param, default=0.03
 
 
 class TlParser(Parser):
     @staticmethod
-    def parse(sbml_model):
-        """
-
-        :param sbml_model:
-        :return: args_out:
-        """
-
+    def parse(sbml_model, settings_file):
         # THESE ARE TAKEN FROM THE SBML_MODEL
-        stochastic_petri_net = SPN()
+        stochastic_petri_net = SPN.SPN()
         stochastic_petri_net.sbml_2_stochastic_petri_net(sbml_model)
 
         args_out = TlArgs()
 
-        args_out.c = numpy.array(stochastic_petri_net.c).astype(numpy.float32)
+        args_out.c = numpy.array(stochastic_petri_net.c).astype(numpy.float64)
 
-        args_out.x_0 = numpy.array(stochastic_petri_net.M).astype(numpy.uint32)
+        args_out.x_0 = numpy.array(stochastic_petri_net.M).astype(numpy.int32)
 
         ma = stochastic_petri_net.Pre
         mb = stochastic_petri_net.Post
@@ -119,15 +114,9 @@ class TlParser(Parser):
         args_out.hazards = TlParser.define_hazards(stochastic_petri_net)
 
         # THESE ARE TAKEN FROM THE SIMULATION XML
-        # TODO
-        # args_out.ita = 0
-        # args_out.kappa = 0
-        #
-        # args_out.n_c = 0
-        # args_out.eta = 0
-        # args_out.t_max = 0
-        #
-        # args_out.E = []
+        Parser.parse_settings(settings_file, args_out)
+
+        args_out.kappa = len(args_out.E)  # number of species we're recording
         args_out.I = numpy.linspace(0, args_out.t_max, num=args_out.ita).astype(
             numpy.float32)
         return args_out
@@ -172,8 +161,8 @@ class TlParser(Parser):
                     stoich = spn.Pre[species_idx][reaction_idx]
                     if stoich > hors_type[species_idx]:
                         hors_type[species_idx] = int(stoich)
-        return numpy.array(hors).astype(numpy.uint8), numpy.array(
-            hors_type).astype(numpy.uint8)
+        return numpy.array(hors).astype(numpy.int32), numpy.array(
+            hors_type).astype(numpy.int32)
 
 ##########
 # TEST

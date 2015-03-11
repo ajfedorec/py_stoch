@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2/version4" level="2" version="4">
+  <model id="lotka_volterra" name="lotka_volterra">
+    <!-- <listOfFunctionDefinitions/> -->
+    <!-- <listOfUnitDefinitions/> -->
+    <listOfCompartments>
+      <compartment id="cell" name="cell" size="1"/>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species id="x" name="x" compartment="cell" initialAmount="1000" />
+      <species id="y" name="y" compartment="cell" initialAmount="1000" />
+      <species id="a" name="a" compartment="cell" initialAmount="1" />
+    </listOfSpecies>
+    <listOfParameters>
+      <!-- <parameter id="a" name="a" value="1" /> -->
+      <parameter id="c1" name="c1" value="10" />
+      <parameter id="c2" name="c2" value="0.01" />
+      <parameter id="c3" name="c3" value="10" />
+    </listOfParameters>
+    <!-- <listOfRules/> -->
+    <listOfReactions>
+      <reaction id="reaction1" name="reaction1" reversible="false" fast="false">
+          <!-- a + x -> 2 x -->
+        <listOfReactants>
+          <speciesReference species="a" stoichiometry="1" />
+          <speciesReference species="x" stoichiometry="1" />
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="a" stoichiometry="1" />
+          <speciesReference species="x" stoichiometry="2" />
+        </listOfProducts>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <ci>c1</ci>
+              <ci>x</ci>
+              <ci>a</ci>
+            </apply>
+          </math>
+          <!-- <listOfParameters/> -->
+        </kineticLaw>
+      </reaction>
+      <reaction id="reaction2" name="reaction2" reversible="false" fast="false">
+          <!-- x + y -> 2 y -->
+        <listOfReactants>
+          <speciesReference species="x" stoichiometry="1" />
+          <speciesReference species="y" stoichiometry="1" />
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="y" stoichiometry="2" />
+        </listOfProducts>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <ci>c2</ci>
+              <ci>x</ci>
+              <ci>y</ci>
+            </apply>
+          </math>
+          <!-- <listOfParameters/> -->
+        </kineticLaw>
+      </reaction>
+      <reaction id="reaction3" name="reaction3" reversible="false" fast="false">
+          <!-- y -> null -->
+        <listOfReactants>
+          <speciesReference species="y" stoichiometry="1" />
+        </listOfReactants>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <ci>c3</ci>
+              <ci>y</ci>
+            </apply>
+          </math>
+          <!-- <listOfParameters/> -->
+        </kineticLaw>
+      </reaction>
+    </listOfReactions>
+    <!-- <listOfEvents/> -->
+  </model>
+</sbml>

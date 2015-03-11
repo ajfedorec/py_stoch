@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2/version4" level="2" version="4">
+  <model id="schlogl" name="schlogl">
+    <!-- <listOfFunctionDefinitions/> -->
+    <!-- <listOfUnitDefinitions/> -->
+    <listOfCompartments>
+      <compartment id="cell" name="cell" size="1"/>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species id="X" name="X" compartment="cell" initialAmount="250" />      
+    </listOfSpecies>
+    <listOfParameters>
+      <!-- <parameter id="a" name="a" value="1" /> -->
+      <parameter id="c1" name="c1" value="0.0000003" />
+      <parameter id="c2" name="c2" value="0.0001" />
+      <parameter id="c3" name="c3" value="0.001" />
+      <parameter id="c4" name="c4" value="3.5" />
+      <parameter id="a" name="a" value="100000" />
+      <parameter id="b" name="b" value="200000" />
+    </listOfParameters>
+    <!-- <listOfRules/> -->
+    <listOfReactions>
+      <reaction id="reaction1" name="reaction1" reversible="false" fast="false">
+          <!-- a + 2X -> 3X -->
+        <listOfReactants>
+          <speciesReference species="X" stoichiometry="2" />
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="X" stoichiometry="3" />
+          <!--<speciesReference species="a" stoichiometry="1" />-->
+        </listOfProducts>
+        <kineticLaw>
+          <!-- c1/2 * ax(x-1) -->
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <apply>
+                  <divide />
+                  <ci>c1</ci>
+                  <cn>2</cn>
+              </apply>
+              <ci>a</ci>
+              <ci>X</ci>
+              <apply>
+                <minus />
+                <ci>X</ci>
+                <cn>1</cn>
+                <!--<apply>
+                    <minus />
+                    <cn>1</cn>
+                </apply>  -->            
+              </apply>
+            </apply>
+          </math>
+          <!-- <listOfParameters/> -->
+        </kineticLaw>
+      </reaction>
+      <reaction id="reaction2" name="reaction2" reversible="false" fast="false">
+          <!-- 3X -> a + 2X -->
+        <listOfReactants>
+          <speciesReference species="X" stoichiometry="3" />
+          <!--<speciesReference species="a" stoichiometry="1" />-->
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="X" stoichiometry="2" />
+        </listOfProducts>
+        <kineticLaw>
+          <!-- c2/6 * x(x-1)(x-2) -->
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <apply>
+                  <divide />
+                  <ci>c2</ci>
+                  <cn>6</cn>
+              </apply>
+              <ci>X</ci>
+              <apply>
+                  <minus />
+                  <ci>X</ci>
+                  <cn>1</cn>                     
+              </apply>
+              <apply>
+                  <minus />
+                  <ci>X</ci>
+                  <cn>2</cn>                  
+              </apply>
+            </apply>
+          </math>
+          <!-- <listOfParameters/> -->
+        </kineticLaw>
+      </reaction>
+      <reaction id="reaction3" name="reaction3" reversible="false" fast="false">
+          <!-- b -> X -->
+        <listOfProducts>
+          <speciesReference species="X" stoichiometry="1" />
+          <!--<speciesReference species="b" stoichiometry="1" />-->
+        </listOfProducts>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <ci>c3</ci>
+              <ci>b</ci>
+            </apply>
+          </math>
+          <!-- <listOfParameters/> -->
+        </kineticLaw>
+      </reaction>
+      <reaction id="reaction4" name="reaction4" reversible="false" fast="false">
+          <!-- X -> b -->
+        <listOfReactants>
+          <speciesReference species="X" stoichiometry="1" />
+          <!--<speciesReference species="b" stoichiometry="1" />-->
+        </listOfReactants>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <ci>c4</ci>
+              <ci>X</ci>
+            </apply>
+          </math>
+          <!-- <listOfParameters/> -->
+        </kineticLaw>
+      </reaction>
+    </listOfReactions>
+    <!-- <listOfEvents/> -->
+  </model>
+</sbml>

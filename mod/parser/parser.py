@@ -1,15 +1,38 @@
 import numpy
 import string
-
+import xml.etree.ElementTree as ET
 from jinja2 import Template
 
 
 class Parser:
     @staticmethod
+    def parse_settings(settings_file, args_obj):
+        """
+        THIS NEEDS SOME SANITY CHECKING FOR ROBUSTNESS
+        :param settings_file: XML file containing user defined settings for the
+         simulations
+        :param args_obj: an object holding the parameters to be passed in to the
+         simulator
+        """
+        tree = ET.parse(settings_file)
+        root = tree.getroot()
+
+        out_species = root.find('output_species')
+        temp_E = []
+        for species in out_species.findall('species'):
+            temp_E.append(int(species.get('idx')))
+
+        args_obj.E = numpy.array(temp_E).astype(numpy.int32)
+
+        args_obj.t_max = float(root.find('duration').text)
+        args_obj.ita = int(root.find('num_output_time_points').text)
+        args_obj.U = int(root.find('num_simulations').text)
+
+    @staticmethod
     def define_hazards(spn):
         hazards_mod = Template(
             """
-            __device__ void UpdatePropensities(float* a, uint* x, float* c)
+            __device__ void UpdatePropensities(double* __restrict__ a, int* __restrict__ x)
             {
             {{hazards}}
             }
@@ -26,9 +49,8 @@ class Parser:
         for i in range(len(spn.c), 0, -1):
             hazards_mod_code = string.replace(hazards_mod_code,
                                               'parameter_' + str(i - 1),
-                                              'c[' + str(i - 1) + ']')
+                                              'd_c[' + str(i - 1) + ']')
 
-        # mymod = SourceModule(hazards_mod_code)
         # print hazards_mod_code
         return hazards_mod_code
 

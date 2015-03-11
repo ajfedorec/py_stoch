@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <output_species>
+        <species idx='0' name='species1' />
+        <species idx='1' name='species2' />
+    </output_species>
+    <duration>10</duration>
+    <num_output_time_points>10001</num_output_time_points>
+    <num_simulations>1280</num_simulations>
+</settings>

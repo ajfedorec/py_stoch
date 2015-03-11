@@ -1,0 +1,1 @@
+from mod.petri_net import SPN

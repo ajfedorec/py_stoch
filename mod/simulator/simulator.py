@@ -4,7 +4,6 @@ import numpy
 import pycuda.tools as cuda_tools
 from pycuda import characterize
 import pycuda.driver as cuda
-import pycuda.autoinit
 from pycuda.compiler import SourceModule
 
 
@@ -38,10 +37,14 @@ class Simulator:
         max_warps_per_block = math.floor(max_threads_per_block / warp_size)
         max_optimal_threads_per_block = max_warps_per_block * warp_size
 
-        if max_optimal_threads_per_block >= 256:
+        if (max_optimal_threads_per_block >= 256) and (tl_args.U >= 2560):
             block_size = 256
-        elif max_optimal_threads_per_block >= 128:
+        elif max_optimal_threads_per_block >= 128 and (tl_args.U >= 1280):
             block_size = 128
+        elif max_optimal_threads_per_block >= 64 and (tl_args.U >= 640):
+            block_size = 64
+        elif max_optimal_threads_per_block >= 32:
+            block_size = 32
         else:
             block_size = max_optimal_threads_per_block
 

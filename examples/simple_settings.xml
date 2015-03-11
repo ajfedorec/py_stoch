@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <output_species>
+        <species idx='2' name='s3' />
+    </output_species>
+    <duration>0.1</duration>
+    <num_output_time_points>2</num_output_time_points>
+    <num_simulations>256000</num_simulations>
+</settings>

@@ -1,25 +1,27 @@
 import string
 import numpy
+import math
 
 import pycuda.driver as cuda
 from pycuda.compiler import SourceModule
 import pycuda.gpuarray as gpuarray
+import pycuda.tools as tools
 
-from parser import TlParser
-import P1_P2
-import P3
-from simulator import StochasticSimulator
+from mod.parser import TlParser
+from mod.simulator.cuTauLeaping import P3, P1_P2
+from mod.simulator import StochasticSimulator
+from mod.utils import Timer
 
 
 class CuTauLeaping(StochasticSimulator):
-    # def cu_tau_leaping(sbml_model, sim_info):
-    def run(self, sbml_model):
+    def run(self, sbml_model, settings_file):
         # 2. A, V, V_t, V_bar, H, H_type <- CalculateDataStructures(MA, MB,
         # x_0, c)
-        my_args = TlParser.parse(sbml_model)
+        my_args = TlParser.parse(sbml_model, settings_file)
 
         # 5. gridSize, blockSize <- DistributeWorkload(U)
         grid_size, block_size = self.CalculateSizes(my_args)
+        # print grid_size, block_size
 
         P1_P2_template = string.Template(P1_P2.kernel)
         P1_P2_code = self.template_to_code(P1_P2_template, my_args, block_size)
@@ -27,6 +29,7 @@ class CuTauLeaping(StochasticSimulator):
         P3_template = string.Template(P3.kernel)
         P3_code = self.template_to_code(P3_template, my_args, block_size)
 
+        # print P1_P2_code
         P1_P2_kernel = SourceModule(P1_P2_code, no_extern_c=True)
         P3_kernel = SourceModule(P3_code, no_extern_c=True)
 
@@ -38,6 +41,7 @@ class CuTauLeaping(StochasticSimulator):
         d_x, d_O, d_Q, d_t, d_F = self.AllocateDataOnGPU(my_args)
         d_rng = self.get_rng_states(my_args.U)
 
+        # cuda.Context.synchronize()
         # 6. repeat
         TerminSimulations = 0
         while TerminSimulations != my_args.U:
@@ -48,8 +52,7 @@ class CuTauLeaping(StochasticSimulator):
                          grid=(int(grid_size), 1, 1),
                          block=(int(block_size), 1, 1))
 
-            # x, E, O, Q, t, F = GetGlobals(d_x, d_E, d_O, d_Q, d_t, d_F)
-            # FreeMemoryOnGPU(d_x, d_E, d_O, d_Q, d_t, d_F)
+            # cuda.Context.synchronize()
 
             # 9. Kernel_p3<<<gridSize, blockSize>>>
             # 10.   ( A, V, x, c, I, E, O, Q, t )
@@ -59,18 +62,18 @@ class CuTauLeaping(StochasticSimulator):
                       grid=(int(grid_size), 1, 1),
                       block=(int(block_size), 1, 1))
 
-            # x, O, Q, t, F = GetGlobals(d_x, d_O, d_Q, d_t, d_F)
-
-            # FreeMemoryOnGPU(d_x, d_E, d_O, d_Q, d_t, d_F)
+            # cuda.Context.synchronize()
 
             # 11. TerminSimulations <- Kernel_p4 <<<gridSize,blockSize>>>(Q)
             Q = gpuarray.sum(d_Q).get()
+            # cuda.Context.synchronize()
             # Q = pycuda.gpuarray.sum(d_Q).get()
             TerminSimulations = -Q
             # print TerminSimulations
 
         # 12. unitl TerminSimulations = U
         O = d_O.get()
+        # cuda.Context.synchronize()
         return O
 
     # 13. end procedure
@@ -109,27 +112,19 @@ class CuTauLeaping(StochasticSimulator):
 
 
     def AllocateDataOnGPU(self, tl_args):
-        t = numpy.zeros(tl_args.U, numpy.float32)
+        t = numpy.zeros(tl_args.U, numpy.float64)
 
-        x = numpy.ones([tl_args.U, tl_args.N], numpy.uint32)
+        x = numpy.ones([tl_args.U, tl_args.N], numpy.int32)
         for i in range(tl_args.U):
             x[i] = tl_args.x_0
 
-        O = numpy.zeros([tl_args.kappa, tl_args.ita, tl_args.U], numpy.uint32)
+        O = numpy.zeros([tl_args.kappa, tl_args.ita, tl_args.U], numpy.int32)
 
         Q = numpy.zeros(tl_args.U, numpy.int32)
 
-        F = numpy.zeros(tl_args.U, numpy.uint32)
+        F = numpy.zeros(tl_args.U, numpy.int32)
 
         return self.AllocateGlobals(x, O, Q, t, F)
-
-
-    def FreeMemoryOnGPU(self, d_x, d_O, d_Q, d_t, d_F):
-        d_x.gpudata.free()
-        d_O.gpudata.free()
-        d_Q.gpudata.free()
-        d_t.gpudata.free()
-        d_F.gpudata.free()
 
     def template_to_code(self, template, args, block_size):
         code = template.substitute(A_SIZE=args.A_size,
@@ -150,41 +145,48 @@ class CuTauLeaping(StochasticSimulator):
         return code
 
     def CalculateSizes(self, tl_args):
-        import pycuda.tools as cuda_tools
-        import math
-
-        hw_constrained_threads_per_block = cuda_tools.DeviceData().max_threads
+        hw_constrained_threads_per_block = tools.DeviceData().max_threads
 
         # T <= floor(MAX_shared / (13M + 8N)) from cuTauLeaping paper eq (5)
         # threads_per_block = math.floor(
         # max_shared_mem / (13 * tl_args.M + 8 * tl_args.N))
         # HOWEVER, for my implementation:
         #   type                size    var     number
-        #   curandStateMRG32k3a 80      rstate  1
-        #   uint                32      x       N
-        #   float               32      c       P
-        #   float               32      a       M
-        #   u char              8       Xeta    M
-        #   int                 32      K       M
+        #   curandStateMRG32k3a 80      rstate  1   80 / 8  = 10
+        #   int                 32      x       N
         #   int                 32      x_prime N
-        #   T <= floor(Max_shared / (9M + 8N + 4P + 10) (bytes)
-        max_shared_mem = cuda_tools.DeviceData().shared_memory
-        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / (
-        9 * tl_args.M + 8 * tl_args.N + 4 * len(tl_args.c)) + 10)
+        #   double              64      mu      N
+        #   double              64      sigma2  N   192 / 8 = 24
+        #   double              64      a       M
+        #   int                 32      Xeta    M
+        #   int                 32      K       M   128 / 8 = 16
+        #   T <= floor(Max_shared / (16M + 24N + 10) (bytes)
+        max_shared_mem = tools.DeviceData().shared_memory
+        shared_mem_usage = (16 * tl_args.M + 24 * tl_args.N + 10)
+
+        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / shared_mem_usage)
+
+        # shared_mem_constrained_threads_per_block = shared_mem_constrained_threads_per_block / 2
+
+        # print max_shared_mem, shared_mem_usage, shared_mem_constrained_threads_per_block
 
         max_threads_per_block = min(hw_constrained_threads_per_block,
                                     shared_mem_constrained_threads_per_block)
 
-        warp_size = cuda_tools.DeviceData().warp_size
+        warp_size = tools.DeviceData().warp_size
 
         # optimal T is a multiple of warp size
         max_warps_per_block = math.floor(max_threads_per_block / warp_size)
         max_optimal_threads_per_block = max_warps_per_block * warp_size
 
-        if max_optimal_threads_per_block >= 256:
+        if (max_optimal_threads_per_block >= 256) and (tl_args.U >= 2560):
             block_size = 256
-        elif max_optimal_threads_per_block >= 128:
+        elif max_optimal_threads_per_block >= 128 and (tl_args.U >= 1280):
             block_size = 128
+        elif max_optimal_threads_per_block >= 64 and (tl_args.U >= 640):
+            block_size = 64
+        elif max_optimal_threads_per_block >= 32:
+            block_size = 32
         else:
             block_size = max_optimal_threads_per_block
 

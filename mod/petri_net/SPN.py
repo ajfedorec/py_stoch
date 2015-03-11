@@ -20,8 +20,6 @@ class SPN:
         # get reaction product stoichiometry matrix Post
         self.Pre, self.Post, self.StoichMConst = self.get_stoichiometries(
             sbml_model)
-        # print self.Pre
-        # print self.Post
 
         # get initial network state vector M
         self.M = self.get_initial_state_vector(sbml_model)
@@ -121,7 +119,7 @@ class SPN:
     @staticmethod
     def replace_hazard_species(mathml, sbml_model):
         num_children = mathml.getNumChildren()
-        species_list = sbml_model.getListOfSpecies();
+        species_list = sbml_model.getListOfSpecies()
         for i in range(num_children):
             SPN.replace_hazard_species(mathml.getChild(i), sbml_model)
         if mathml.getType() == libsbml.AST_NAME:
