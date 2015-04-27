@@ -118,29 +118,3 @@ class CuGillespie(StochasticSimulator):
 
         return grid_size, block_size
 
-##########
-# TEST
-##########
-# import libsbml
-#
-# sbml_file = '/home/sandy/Downloads/simple_sbml.xml'
-# reader = libsbml.SBMLReader()
-# document = reader.readSBML(sbml_file)
-# # check the SBML for errors
-# error_count = document.getNumErrors()
-# if error_count > 0:
-#     raise UserWarning(error_count + ' errors in SBML file: ' + open_file_.name)
-# sbml_model = document.getModel()
-#
-# O = cu_gillespie(sbml_model)
-# # print O
-#
-# import matplotlib.pyplot as plt
-#
-# num_bins = 70
-# # the histogram of the data
-# n, bins, patches = plt.hist(O[2][1], num_bins, normed=1, facecolor='green',
-#                             alpha=0.5)
-# plt.axis([10, 90, 0, 0.07])
-# plt.subplots_adjust(left=0.15)
-# plt.show()

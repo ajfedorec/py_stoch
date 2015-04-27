@@ -57,8 +57,8 @@ __global__ void kernel_P3(int global_x[$THREAD_NUM][$SPECIES_NUM],
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         x[sid][species_idx] = global_x[tid][species_idx];
-		//printf("SSA: x[%d] = %d at time %f in thread %d\\n", species_idx,
-		//        x[sid][species_idx], d_t[tid], tid);
+        //printf("SSA: x[%d] = %d at time %f in thread %d\\n", species_idx,
+        //        x[sid][species_idx], d_t[tid], tid);
     }
 
     __shared__ double a[$BLOCK_SIZE][$REACT_NUM];
@@ -93,7 +93,7 @@ __global__ void kernel_P3(int global_x[$THREAD_NUM][$SPECIES_NUM],
             #pragma unroll $KAPPA
             for(int species_out_idx = 0; species_out_idx < $KAPPA; species_out_idx++)
             {
-				#pragma unroll $ITA
+                #pragma unroll $ITA
                 for(int time_out_idx = d_F[tid]; time_out_idx < $ITA; time_out_idx++)
                 {
                     // 13. O[tid][i] <- x[tid]
@@ -139,7 +139,7 @@ __global__ void kernel_P3(int global_x[$THREAD_NUM][$SPECIES_NUM],
                 // 25. Q[tid] <- -1
                 d_Q[tid] = -1;
                 //printf("SSA: No more samples: simulation over in thread %d\\n", tid);
-				return;
+                return;
             // 26. end if
             }
         // 27. end if
@@ -151,14 +151,14 @@ __global__ void kernel_P3(int global_x[$THREAD_NUM][$SPECIES_NUM],
     }
 
     // 30. global_x <- x
-	#pragma unroll $SPECIES_NUM
+    #pragma unroll $SPECIES_NUM
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         global_x[tid][species_idx] = x[sid][species_idx];
         //printf("global_x[%d][%d] = %d\\n", tid, species_idx, global_x[tid][species_idx]);
     }
 
-	d_rng[tid] = rstate[sid];
+    d_rng[tid] = rstate[sid];
 // 31. end procedure
 }
 
@@ -177,7 +177,7 @@ __device__ void SaveDynamics(int x[$SPECIES_NUM], int f, int tid,
 }
 
 __device__ int SingleCriticalReaction(double a[$REACT_NUM], double a_0,
-									  curandStateMRG32k3a* rstate)
+                                      curandStateMRG32k3a* rstate)
 {
     double rho = curand_uniform(rstate);
     double rcount = 0;

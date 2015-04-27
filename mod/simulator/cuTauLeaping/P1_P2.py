@@ -81,8 +81,8 @@ __global__ void kernel_P1_P2(int global_x[$THREAD_NUM][$SPECIES_NUM],
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         x[sid][species_idx] = global_x[tid][species_idx];
-		//printf("TL: x[%d] = %d at time %f in thread %d\\n", species_idx,
-		//        x[sid][species_idx], d_t[tid], tid);
+        //printf("TL: x[%d] = %d at time %f in thread %d\\n", species_idx,
+        //        x[sid][species_idx], d_t[tid], tid);
     }
 
     // 6. if Q[tid] = -1 then return

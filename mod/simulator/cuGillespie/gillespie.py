@@ -25,7 +25,7 @@ __device__ void SaveDynamics(int x[$SPECIES_NUM],
 
 
 __global__ void kernel_Gillespie(int d_O[$KAPPA][$ITA][$THREAD_NUM],
-	                             curandStateMRG32k3a d_rng[$THREAD_NUM])
+                                 curandStateMRG32k3a d_rng[$THREAD_NUM])
 {
     // 2. tid <- getGlobalId()
     // I'm only using 1 dimensional blocks so only need to consider x axes
@@ -35,7 +35,7 @@ __global__ void kernel_Gillespie(int d_O[$KAPPA][$ITA][$THREAD_NUM],
     int sid = threadIdx.x;
 
     // It is quite compute intensive to initialise the curandStateMRG32k3a so we
-    // do this in the host code and store an array, one for each thread, in 
+    // do this in the host code and store an array, one for each thread, in
     // shared memory
     __shared__ curandStateMRG32k3a rstate[$BLOCK_SIZE];
     rstate[sid] = d_rng[tid];
@@ -56,8 +56,8 @@ __global__ void kernel_Gillespie(int d_O[$KAPPA][$ITA][$THREAD_NUM],
     for(int species_idx = 0; species_idx < $SPECIES_NUM; species_idx++)
     {
         x[sid][species_idx] = d_x_0[species_idx];
-		//printf("SSA: x[%d] = %d at time %f in thread %d\\n", species_idx,
-		//        x[sid][species_idx], d_t[tid], tid);
+        //printf("SSA: x[%d] = %d at time %f in thread %d\\n", species_idx,
+        //        x[sid][species_idx], d_t[tid], tid);
     }
 
     __shared__ double a[$BLOCK_SIZE][$REACT_NUM];
@@ -133,9 +133,9 @@ __global__ void kernel_Gillespie(int d_O[$KAPPA][$ITA][$THREAD_NUM],
             // 24. if F[tid] = ita then
             if(d_F[sid] == $ITA)
             {
-				// printf("SSA: No more samples: simulation over in thread %d\\n", tid);
+                // printf("SSA: No more samples: simulation over in thread %d\\n", tid);
                 return;
-			// 26. end if
+            // 26. end if
             }
         // 27. end if
         }
@@ -162,7 +162,7 @@ __device__ void SaveDynamics(int x[$SPECIES_NUM], int f, int tid,
 }
 
 __device__ int SingleCriticalReaction(double a[$REACT_NUM], double a_0,
-									            curandStateMRG32k3a* rstate)
+                                      curandStateMRG32k3a* rstate)
 {
     double rho = curand_uniform(rstate);
     double rcount = 0;

@@ -77,7 +77,6 @@ class TlParser(Parser):
             numpy.float32)
         return args_out
 
-
     @staticmethod
     def get_reaction_orders(hazards, species):
         reaction_orders = []

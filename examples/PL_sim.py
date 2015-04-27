@@ -1,16 +1,16 @@
 import libsbml
-from mod.simulator import cuTauLeaping, cuGillespie
+from mod.simulator import cuTauLeaping
 import sim_maker
 from scipy.integrate import odeint
 from mod.utils.saver import save_results
+import os
 
 
 #
 # GET SBML MODEL
 #
 # Location of your SBML model file.
-# TODO: change to relative path
-sbml_file = '/home/sandy/Documents/Code/py_stoch/examples/plasmid_stability.xml'
+sbml_file = os.getcwd() + '/plasmid_stability.xml'
 reader = libsbml.SBMLReader()
 document = reader.readSBML(sbml_file)
 # check the SBML for errors
@@ -85,6 +85,7 @@ for args_idx, args in enumerate(g_args_list):
     save_results(new_result, args, sbml_model.getName(), sim_type='G')
 
     g_results.append(new_result)
+
 
 #
 # ODE COMPARISON
