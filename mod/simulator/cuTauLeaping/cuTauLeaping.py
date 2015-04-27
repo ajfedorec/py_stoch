@@ -7,78 +7,84 @@ from pycuda.compiler import SourceModule
 import pycuda.gpuarray as gpuarray
 import pycuda.tools as tools
 
-from mod.parser import TlParser
 from mod.simulator.cuTauLeaping import P3, P1_P2
 from mod.simulator import StochasticSimulator
 from mod.utils import Timer
 
+import pycuda.autoinit
+
 
 class CuTauLeaping(StochasticSimulator):
-    def run(self, sbml_model, settings_file):
+    def run(self, my_args):
+        # print "run starting..."
         # 2. A, V, V_t, V_bar, H, H_type <- CalculateDataStructures(MA, MB,
         # x_0, c)
-        my_args = TlParser.parse(sbml_model, settings_file)
 
         # 5. gridSize, blockSize <- DistributeWorkload(U)
-        grid_size, block_size = self.CalculateSizes(my_args)
+        grid_size, block_size = self.calculate_sizes(my_args)
         # print grid_size, block_size
 
-        P1_P2_template = string.Template(P1_P2.kernel)
-        P1_P2_code = self.template_to_code(P1_P2_template, my_args, block_size)
+        p1_p2_template = string.Template(P1_P2.kernel)
+        p1_p2_code = self.template_to_code(p1_p2_template, my_args, block_size)
 
-        P3_template = string.Template(P3.kernel)
-        P3_code = self.template_to_code(P3_template, my_args, block_size)
+        p3_template = string.Template(P3.kernel)
+        p3_code = self.template_to_code(p3_template, my_args, block_size)
 
-        # print P1_P2_code
-        P1_P2_kernel = SourceModule(P1_P2_code, no_extern_c=True)
-        P3_kernel = SourceModule(P3_code, no_extern_c=True)
+        # print p1_p2_code
+        p1_p2_kernel = SourceModule(p1_p2_code, no_extern_c=True)
+        p3_kernel = SourceModule(p3_code, no_extern_c=True)
 
-        # 3. LoadDataOnGPU( A, V, V_t, V_bar, H, H_type, x_0, c )
-        self.LoadDataOnGPU(my_args, P1_P2_kernel)
-        self.LoadDataOnGPU(my_args, P3_kernel)
+        # 3. load_data_on_gpu( A, V, V_t, V_bar, H, H_type, x_0, c )
+        self.load_data_on_gpu(my_args, p1_p2_kernel)
+        self.load_data_on_gpu(my_args, p3_kernel)
 
-        # 4. AllocateDataOnGPU( t, x, O, E, Q )
-        d_x, d_O, d_Q, d_t, d_F = self.AllocateDataOnGPU(my_args)
+        # 4. allocate_data_on_gpu( t, x, O, E, Q )
+        d_x, d_O, d_Q, d_t, d_F = self.allocate_data_on_gpu(my_args)
         d_rng = self.get_rng_states(my_args.U)
 
-        # cuda.Context.synchronize()
+        cuda.Context.synchronize()
+        # print "... memory loaded ..."
         # 6. repeat
-        TerminSimulations = 0
-        while TerminSimulations != my_args.U:
+        termin_simulations = 0
+        while termin_simulations != my_args.U:
             # 7. Kernel_p1-p2<<<gridSize, blockSize>>>
             # 8.    ( A, V, V_t, V_bar, H, H_type, x, c, I, E, O, Q, t )
-            kernel_P1_P2 = P1_P2_kernel.get_function('kernel_P1_P2')
-            kernel_P1_P2(d_x, d_O, d_Q, d_t, d_F, d_rng,
+            kernel_p1_p2 = p1_p2_kernel.get_function('kernel_P1_P2')
+            kernel_p1_p2(d_x, d_O, d_Q, d_t, d_F, d_rng,
                          grid=(int(grid_size), 1, 1),
                          block=(int(block_size), 1, 1))
 
-            # cuda.Context.synchronize()
+            cuda.Context.synchronize()
+            # print "...tau leaping kernels exit..."
 
             # 9. Kernel_p3<<<gridSize, blockSize>>>
             # 10.   ( A, V, x, c, I, E, O, Q, t )
-            # d_x, d_E, d_O, d_Q, d_t, d_F  = AllocateGlobals(x, E, O, Q, t, F)
-            kernel_P3 = P3_kernel.get_function('kernel_P3')
-            kernel_P3(d_x, d_O, d_Q, d_t, d_F, d_rng,
+            # d_x, d_E, d_O, d_Q, d_t, d_F  = allocate_globals(x, E, O, Q, t, F)
+            kernel_p3 = p3_kernel.get_function('kernel_P3')
+            kernel_p3(d_x, d_O, d_Q, d_t, d_F, d_rng,
                       grid=(int(grid_size), 1, 1),
                       block=(int(block_size), 1, 1))
 
-            # cuda.Context.synchronize()
+            cuda.Context.synchronize()
+            # print "...Gillespie kernels exit..."
 
-            # 11. TerminSimulations <- Kernel_p4 <<<gridSize,blockSize>>>(Q)
+            # 11. termin_simulations <- Kernel_p4 <<<gridSize,blockSize>>>(Q)
             Q = gpuarray.sum(d_Q).get()
-            # cuda.Context.synchronize()
-            # Q = pycuda.gpuarray.sum(d_Q).get()
-            TerminSimulations = -Q
-            # print TerminSimulations
+            cuda.Context.synchronize()
+            # print "...exit check..."
+            termin_simulations = -Q
+            # print termin_simulations
 
-        # 12. unitl TerminSimulations = U
+        # 12. unitl termin_simulations = U
+        # print "... simulations finished..."
         O = d_O.get()
-        # cuda.Context.synchronize()
+        cuda.Context.synchronize()
+        # print "... results gathered"
+        self.free_mem(d_x, d_O, d_Q, d_t, d_F)
         return O
 
-    # 13. end procedure
-
-    def LoadDataOnGPU(self, tl_args, module):
+    @staticmethod
+    def load_data_on_gpu(tl_args, module):
         d_A = module.get_global('d_A')[0]
         cuda.memcpy_htod(d_A, tl_args.A)
 
@@ -100,8 +106,8 @@ class CuTauLeaping(StochasticSimulator):
         d_E = module.get_global('d_E')[0]
         cuda.memcpy_htod(d_E, tl_args.E)
 
-
-    def AllocateGlobals(self, x, O, Q, t, F):
+    @staticmethod
+    def allocate_globals(x, O, Q, t, F):
         d_t = gpuarray.to_gpu(t)
         d_x = gpuarray.to_gpu(x)
         d_O = gpuarray.to_gpu(O)
@@ -110,8 +116,7 @@ class CuTauLeaping(StochasticSimulator):
 
         return d_x, d_O, d_Q, d_t, d_F
 
-
-    def AllocateDataOnGPU(self, tl_args):
+    def allocate_data_on_gpu(self, tl_args):
         t = numpy.zeros(tl_args.U, numpy.float64)
 
         x = numpy.ones([tl_args.U, tl_args.N], numpy.int32)
@@ -124,9 +129,18 @@ class CuTauLeaping(StochasticSimulator):
 
         F = numpy.zeros(tl_args.U, numpy.int32)
 
-        return self.AllocateGlobals(x, O, Q, t, F)
+        return self.allocate_globals(x, O, Q, t, F)
 
-    def template_to_code(self, template, args, block_size):
+    @staticmethod
+    def free_mem(d_x, d_O, d_Q, d_t, d_F):
+        d_x.gpudata.free()
+        d_O.gpudata.free()
+        d_Q.gpudata.free()
+        d_t.gpudata.free()
+        d_F.gpudata.free()
+
+    @staticmethod
+    def template_to_code(template, args, block_size):
         code = template.substitute(A_SIZE=args.A_size,
                                    V_SIZE=args.V_size,
                                    V_T_SIZE=args.V_t_size,
@@ -141,10 +155,11 @@ class CuTauLeaping(StochasticSimulator):
                                    ETA=args.eta,
                                    T_MAX=args.t_max,
                                    BLOCK_SIZE=block_size,
-                                   UPDATE_PROPENSITIES=args.hazards)
+                                   UPDATE_PROPENSITIES=args.hazards,
+                                   GILLESPIE=args.gillespie)
         return code
 
-    def CalculateSizes(self, tl_args):
+    def calculate_sizes(self, tl_args):
         hw_constrained_threads_per_block = tools.DeviceData().max_threads
 
         # T <= floor(MAX_shared / (13M + 8N)) from cuTauLeaping paper eq (5)
@@ -164,11 +179,10 @@ class CuTauLeaping(StochasticSimulator):
         max_shared_mem = tools.DeviceData().shared_memory
         shared_mem_usage = (16 * tl_args.M + 24 * tl_args.N + 10)
 
-        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / shared_mem_usage)
+        shared_mem_constrained_threads_per_block = math.floor(max_shared_mem /
+                                                              shared_mem_usage)
 
         # shared_mem_constrained_threads_per_block = shared_mem_constrained_threads_per_block / 2
-
-        # print max_shared_mem, shared_mem_usage, shared_mem_constrained_threads_per_block
 
         max_threads_per_block = min(hw_constrained_threads_per_block,
                                     shared_mem_constrained_threads_per_block)

@@ -1,3 +1,7 @@
+"""
+This code is taken from stack exchange but I forgot to record which thread
+"""
+
 import time
 
 
@@ -12,6 +16,6 @@ class Timer(object):
     def __exit__(self, *args):
         self.end = time.time()
         self.secs = self.end - self.start
-        self.msecs = self.secs * 1000  # millisecs
+        self.msecs = self.secs * 1000  # milliseconds
         if self.verbose:
             print 'elapsed time: %f ms' % self.msecs

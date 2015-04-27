@@ -123,7 +123,7 @@ __global__ void kernel_P3(int global_x[$THREAD_NUM][$SPECIES_NUM],
         //printf("t = %f\\n", d_t[tid]);
 
         // 21. if T[tid] >= I[F[tid]] then
-        if(d_t[tid] >= d_I[d_F[tid]])
+        while(d_t[tid] >= d_I[d_F[tid]])
         {
             //printf("d_t = %f,  d_I[d_F] = %f, d_F = %d in thread %d\\n",
             //        d_t[tid], d_I[d_F[tid]], d_F[tid], tid);
@@ -138,9 +138,8 @@ __global__ void kernel_P3(int global_x[$THREAD_NUM][$SPECIES_NUM],
             {
                 // 25. Q[tid] <- -1
                 d_Q[tid] = -1;
-                //printf("SSA: No more samples: simulation over in thread
-                //        %d\\n", tid);
-				break;
+                //printf("SSA: No more samples: simulation over in thread %d\\n", tid);
+				return;
             // 26. end if
             }
         // 27. end if
@@ -170,14 +169,15 @@ __device__ void SaveDynamics(int x[$SPECIES_NUM], int f, int tid,
     #pragma unroll $KAPPA
     for(int species_out_idx = 0; species_out_idx < $KAPPA; species_out_idx++)
     {
-        //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", i, i, d_E[i],
-        //        d_E[i], x[d_E[i]], f);
+        //printf("i: %d, d_E[%d]: %d, x[%d]: %d, f: %d\\n", species_out_idx,
+        //        species_out_idx, d_E[species_out_idx], d_E[species_out_idx],
+        //        x[d_E[species_out_idx]], f);
         O[species_out_idx][f][tid] = x[d_E[species_out_idx]];
     }
 }
 
 __device__ int SingleCriticalReaction(double a[$REACT_NUM], double a_0,
-									            curandStateMRG32k3a* rstate)
+									  curandStateMRG32k3a* rstate)
 {
     double rho = curand_uniform(rstate);
     double rcount = 0;

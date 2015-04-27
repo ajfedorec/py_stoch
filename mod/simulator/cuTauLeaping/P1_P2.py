@@ -64,12 +64,14 @@ __global__ void kernel_P1_P2(int global_x[$THREAD_NUM][$SPECIES_NUM],
     // 3. sid <- getLocalId()
     int sid = threadIdx.x;
 
-    // Uncomment this to force gillespie
-    //if(d_Q[tid] != -1)
-    //{
-    //    d_Q[tid] = 0;
-    //    return;
-    //}
+    // MACRO which will force Gillespie when turned on.
+    #if $GILLESPIE
+        if(d_Q[tid] != -1)
+        {
+            d_Q[tid] = 0;
+            return;
+        }
+    #endif
 
     __shared__ curandStateMRG32k3a rstate[$BLOCK_SIZE];
     rstate[sid] = d_rng[tid];
@@ -201,7 +203,7 @@ __global__ void kernel_P1_P2(int global_x[$THREAD_NUM][$SPECIES_NUM],
         tau_2 = (1. / a_0_c) * log(1. / rho_1);
     // 31. end if
     }
-    ///printf("tau_2 = %f in thread %d\\n", tau_2, tid);
+    //printf("tau_2 = %f in thread %d\\n", tau_2, tid);
 
     // 32. Tau <- min{Tau_1, Tau_2}
     double tau = fminf(tau_1, tau_2);
@@ -350,15 +352,17 @@ __device__ void CalculateMuSigma(int x[$SPECIES_NUM],
     {
         stoich_elem = d_V[stoich_elem_idx];
 
-        //printf("species: %d, react: %d, reactant?: %d, crit?: %d\\n",
+        //printf("species: %d, react: %d, reactant?: %d, crit?: %d, stoich: %d\\n",
         //        stoich_elem.x, stoich_elem.y, I_rs[stoich_elem.x],
-        //        xeta[stoich_elem.y]);
+        //        xeta[stoich_elem.y], stoich_elem.z);
 
         if(I_rs[int(stoich_elem.x)] == 1)
         {
             // if the reaction (stoich_elem.y) is not critical
             if(xeta[int(stoich_elem.y)] == 0)
             {
+                //printf("old_mu: %f, stoich: %d, a: %f\\n", mu[stoich_elem.x], int(stoich_elem.z), a[stoich_elem.y]);
+
                 // mu_i = Sum_j_ncr(v_ij * a_j(x)) for all i in {set of
                 // reactant species}
                 // where: v_ij is the stoichiometry of species i in
@@ -383,7 +387,11 @@ __device__ double CalculateTau(int xeta[$REACT_NUM],
                                double mu[$SPECIES_NUM],
                                double sigma2[$SPECIES_NUM])
 {
-    // set initial tau to some large number, should be infinite
+    // Set initial tau to some large number, should be infinite.
+    // If I set this to infinity, I can't run certain models such as:
+    //   R1: S1 -> S1 + S2
+    // because mu and sigma2 will both be 0 because S2 does not appear as a
+    // reactant and there is no stoichiometric change in S1.
     double tau  = INFINITY;
 
     // need to calculate I_rs, a list of species appearing as a reactant in at
@@ -417,7 +425,7 @@ __device__ double CalculateTau(int xeta[$REACT_NUM],
                 double rhs = (numerator_l * numerator_l) / sigma2[int(stoich_elem.x)];
                 double temp_tau = fminf(lhs, rhs);
 
-                //printf("x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[%d] =%f\\n",
+                //printf("x[%d] = %d, g_i = %f, mu[%d] = %f, sigma2[%d] = %f\\n",
                 //        stoich_elem.x, x[stoich_elem.x], g_i, stoich_elem.x,
                 //        mu[stoich_elem.x], stoich_elem.x,
                 //        sigma2[stoich_elem.x]);

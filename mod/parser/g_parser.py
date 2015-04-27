@@ -1,46 +1,36 @@
 import numpy
-
 from parser import Parser
-from mod.petri_net import SPN
 
 
 class GArgs:
     def __init__(self):
-        # definitions of these variables are in cuTauLeaping paper by Nobile
+        # Definitions of these variables are in cuTauLeaping paper by Nobile
         # et al.
-        self.c = []
-        self.x_0 = []
+        self.c = []    # parameter values vector
+        self.x_0 = []  # initial species amounts vector
 
-        self.V = []
+        self.V = []  # flattened stoichiometry matrix
 
-        self.M = 0
-        self.N = 0
-        self.V_size = 0
+        self.M = 0  # number of reactions
+        self.N = 0  # number of species
+        self.V_size = 0  # number of non-zero entries in stoichiometry matrix
 
-        self.hazards = []
+        self.hazards = []  # the CUDA code for UpdatePropensities
 
-        # these should be taken from a simulation set up xml
-        self.E = numpy.array([0]).astype(
-            numpy.int32)  # indices of the output species
-        self.ita = 11  # number of time recording points
-        self.kappa = len(self.E)  # number of species we're recording
+        # These should be taken from a simulation set up xml
+        self.E = numpy.array([0]).astype(numpy.int32)  # indices of the output species
         self.t_max = 1  # the time at which the simulation ends
+        self.ita = 11   # number of time recording points
+        self.U = 128    # number of threads
 
+        # These are derived from setup params above
+        self.kappa = len(self.E)  # number of species we're recording
         self.I = numpy.array([])  # instances for recording
-
-        # self.U = 998400
-        self.U = 128
 
 
 class GParser(Parser):
     @staticmethod
-    def parse(sbml_model, settings_file):
-        # THESE ARE TAKEN FROM THE SBML_MODEL
-        stochastic_petri_net = SPN.SPN()
-        stochastic_petri_net.sbml_2_stochastic_petri_net(sbml_model)
-
-        args_out = GArgs()
-
+    def parse(args_out, stochastic_petri_net):
         args_out.c = numpy.array(stochastic_petri_net.c).astype(numpy.float64)
 
         args_out.x_0 = numpy.array(stochastic_petri_net.M).astype(numpy.int32)
@@ -55,9 +45,6 @@ class GParser(Parser):
         args_out.N = len(stochastic_petri_net.P)
 
         args_out.hazards = GParser.define_hazards(stochastic_petri_net)
-
-        # THESE ARE TAKEN FROM THE SIMULATION XML
-        Parser.parse_settings(settings_file, args_out)
 
         args_out.kappa = len(args_out.E)  # number of species we're recording
         args_out.I = numpy.linspace(0, args_out.t_max, num=args_out.ita).astype(

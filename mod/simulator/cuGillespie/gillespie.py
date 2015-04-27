@@ -120,7 +120,7 @@ __global__ void kernel_Gillespie(int d_O[$KAPPA][$ITA][$THREAD_NUM],
         //printf("t = %f\\n", d_t[tid]);
 
         // 21. if T[tid] >= I[F[tid]] then
-        if(d_t[sid] >= d_I[d_F[sid]])
+        while(d_t[sid] >= d_I[d_F[sid]])
         {
             //printf("d_t = %f,  d_I[d_F] = %f, d_F = %d in thread %d\\n",
             //        d_t[tid], d_I[d_F[tid]], d_F[tid], tid);
@@ -134,7 +134,7 @@ __global__ void kernel_Gillespie(int d_O[$KAPPA][$ITA][$THREAD_NUM],
             if(d_F[sid] == $ITA)
             {
 				// printf("SSA: No more samples: simulation over in thread %d\\n", tid);
-                break;
+                return;
 			// 26. end if
             }
         // 27. end if

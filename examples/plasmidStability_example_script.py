@@ -29,6 +29,55 @@ import matplotlib.pyplot as plt
 from scipy import stats
 import numpy
 
+my_range = numpy.linspace(0, 10, num=101)
+prop_TL = simR_TL[0] / (simR_TL[0] + simR_TL[1])
+
+mean_prop_TL = numpy.mean(prop_TL, axis=1)
+sd_prop_TL = numpy.std(prop_TL, axis=1)
+
+plt.figure(1)
+plt.subplot(211)
+plt.xlabel('Time')
+plt.ylabel('Mean')
+plt.ylim([0, 1])
+plt.xlim([0, 10])
+plt.title('Mean plasmid-bearing population proportion')
+plt.plot(my_range, mean_prop_TL, 'g-')
+
+plt.subplot(212)
+plt.xlabel('Time')
+plt.ylabel('Standard deviation')
+plt.title('Standard deviation')
+plt.xlim([0, 10])
+plt.plot(my_range, sd_prop_TL, 'g-')
+plt.show()
+
+# mean_TL_0 = numpy.mean(simR_TL[0], axis=1)
+# mean_TL_1 = numpy.mean(simR_TL[1], axis=1)
+#
+# sd_TL_0 = numpy.std(simR_TL[0], axis=1)
+# sd_TL_1 = numpy.std(simR_TL[1], axis=1)
+
+# mean_G_0 = numpy.mean(simR_G[0], axis=1)
+# mean_G_1 = numpy.mean(simR_G[1], axis=1)
+#
+# sd_G_0 = numpy.std(simR_G[0], axis=1)
+# sd_G_1 = numpy.std(simR_G[1], axis=1)
+
+# plt.plot(my_range, sd_TL_0, 'b-')
+# plt.plot(my_range, sd_TL_1, 'g-')
+# plt.plot(my_range, mean_TL_0, 'b-')
+# plt.plot(my_range, mean_TL_1, 'g-')
+
+# plt.plot(my_range, mean_G_0, 'r-')
+# plt.plot(my_range, mean_G_1, 'y-')
+
+# plt.plot(my_range, sd_TL_0, 'b-')
+# plt.plot(my_range, sd_TL_1, 'g-')
+
+# plt.plot(my_range, sd_G_0, 'r-')
+# plt.plot(my_range, sd_G_1, 'y-')
+
 ## Xm distribution at t = 10
 # density_TL = stats.gaussian_kde(simR_TL[1][100])
 # density_G = stats.gaussian_kde(simR_G[1][100])
@@ -43,11 +92,12 @@ import numpy
 # plt.title('Xm(10)')
 
 
-#
+# #
+plt.figure(2)
 propXp_TL = simR_TL[0] / (simR_TL[0] + simR_TL[1])
-# print propXp_TL
+# # print propXp_TL
 density_propXp_TL = stats.gaussian_kde(propXp_TL[100])
-
+#
 plt_range = numpy.arange(0, 1, 0.01)
 plt.plot(plt_range, density_propXp_TL(plt_range), 'r-')
 

@@ -5,47 +5,32 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad1a12bc-25cb-4efa-addc-66a2ec7b71e7" name="Default" comment="lots of changes - confident simulators are working correctly.&#10;  - moved some example sbml, settings and python scripts to examplse folder&#10;  - had to move most packages into a separate mod folder&#10;  - currently all types in the cuda code are either int or double&#10;  - block and grid size calculation is still rudimentary&#10;  -">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/P3.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/parser/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/petri_net/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/simulator/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/simulator/cuGillespie/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/utils/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/simulator/cuGillespie/cuGillespie.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/simulator/cuGillespie/gillespie.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/lotkaVoltera_sbml.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/lotkaVolterra_example_script.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/lotkaVolterra_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/plasmidStability_example_script.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/schlogl_example_script.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/schlogl_sbml.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/schlogl_sbmlv2.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/schlogl_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/simple_example_script.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/simple_sbml.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/simple_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/utils/timer.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/parser/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/petri_net/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/sim_controller/sim_controller.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/simulator/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/simulator/cuGillespie/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/simulator/cuGillespie/cuGillespie.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/simulator/cuGillespie/cuda_profile_0.log" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/simulator/cuGillespie/gillespie.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/simulator/cuTauLeaping/P3.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/simulator/cuTauLeaping/__init__.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_sim.py" afterPath="$PROJECT_DIR$/Main.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/parser/g_parser.py" afterPath="$PROJECT_DIR$/mod/parser/g_parser.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/parser/parser.py" afterPath="$PROJECT_DIR$/mod/parser/parser.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/parser/tl_parser.py" afterPath="$PROJECT_DIR$/mod/parser/tl_parser.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/petri_net/SPN.py" afterPath="$PROJECT_DIR$/mod/petri_net/SPN.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/simulator/cuTauLeaping/P1_P2.py" afterPath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/P1_P2.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/simulator/cuTauLeaping/cuTauLeaping.py" afterPath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/cuTauLeaping.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/simulator/simulator.py" afterPath="$PROJECT_DIR$/mod/simulator/simulator.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/PL_sim.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/lotkaVolterra_sim.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/plasmid_stability.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mod/utils/saver.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/schlogl_sim.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/sim_maker.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/examples/simple_sim.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Main.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/lotkaVolterra_example_script.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/lotkaVolterra_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/schlogl_example_script.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/schlogl_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/simple_example_script.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/simple_settings.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/P1_P2.py" afterPath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/P1_P2.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/P3.py" afterPath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/P3.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/utils/__init__.py" afterPath="$PROJECT_DIR$/mod/utils/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/simulator/cuGillespie/cuGillespie.py" afterPath="$PROJECT_DIR$/mod/simulator/cuGillespie/cuGillespie.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/cuTauLeaping.py" afterPath="$PROJECT_DIR$/mod/simulator/cuTauLeaping/cuTauLeaping.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/parser/g_parser.py" afterPath="$PROJECT_DIR$/mod/parser/g_parser.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/simulator/cuGillespie/gillespie.py" afterPath="$PROJECT_DIR$/mod/simulator/cuGillespie/gillespie.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/plasmidStability_example_script.py" afterPath="$PROJECT_DIR$/examples/plasmidStability_example_script.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/simple_sbml.xml" afterPath="$PROJECT_DIR$/examples/simple_sbml.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/simulator/simulator.py" afterPath="$PROJECT_DIR$/mod/simulator/simulator.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/utils/timer.py" afterPath="$PROJECT_DIR$/mod/utils/timer.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mod/parser/tl_parser.py" afterPath="$PROJECT_DIR$/mod/parser/tl_parser.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="my_sim.iws" />
@@ -60,15 +45,20 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/my_sim$cuGillespie.coverage" NAME="cuGillespie Coverage Results" MODIFIED="1422555842774" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulator/cuGillespie" />
-    <SUITE FILE_PATH="coverage/my_sim$plasmidStability_example_script.coverage" NAME="plasmidStability_example_script Coverage Results" MODIFIED="1425994892316" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
-    <SUITE FILE_PATH="coverage/my_sim$lotkaVolterra_example_script.coverage" NAME="lotkaVolterra_example_script Coverage Results" MODIFIED="1425987681991" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$plasmidStability_example_script.coverage" NAME="plasmidStability_example_script Coverage Results" MODIFIED="1430128625876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$lotkaVolterra_example_script.coverage" NAME="lotkaVolterra_example_script Coverage Results" MODIFIED="1429615436659" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
     <SUITE FILE_PATH="coverage/my_sim$cuTL.coverage" NAME="cuTL Coverage Results" MODIFIED="1421326491753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulator/cuTauLeaping" />
-    <SUITE FILE_PATH="coverage/my_sim$tl_parser.coverage" NAME="tl_parser Coverage Results" MODIFIED="1421673694082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/parser" />
     <SUITE FILE_PATH="coverage/my_sim$cuTauLeaping.coverage" NAME="cuTauLeaping Coverage Results" MODIFIED="1422545938923" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulator/cuTauLeaping" />
-    <SUITE FILE_PATH="coverage/my_sim$simple_example_script.coverage" NAME="simple_example_script Coverage Results" MODIFIED="1426071754091" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$simple_example_script.coverage" NAME="simple_example_script Coverage Results" MODIFIED="1427989622379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$schlogl_sim.coverage" NAME="schlogl_sim Coverage Results" MODIFIED="1430133104235" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$cuGillespie.coverage" NAME="cuGillespie Coverage Results" MODIFIED="1422555842774" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulator/cuGillespie" />
+    <SUITE FILE_PATH="coverage/my_sim$sim_maker.coverage" NAME="sim_maker Coverage Results" MODIFIED="1427738349509" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/my_sim$simple_sim.coverage" NAME="simple_sim Coverage Results" MODIFIED="1430133521094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$tl_parser.coverage" NAME="tl_parser Coverage Results" MODIFIED="1421673694082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/parser" />
     <SUITE FILE_PATH="coverage/my_sim$my_sim.coverage" NAME="my_sim Coverage Results" MODIFIED="1425553511009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/my_sim$schlogl_example_script.coverage" NAME="schlogl_example_script Coverage Results" MODIFIED="1425987660463" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$lotkaVolterra_sim.coverage" NAME="lotkaVolterra_sim Coverage Results" MODIFIED="1430132554514" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$schlogl_example_script.coverage" NAME="schlogl_example_script Coverage Results" MODIFIED="1427989643365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/my_sim$PL_sim.coverage" NAME="PL_sim Coverage Results" MODIFIED="1430134101076" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
     <SUITE FILE_PATH="coverage/my_sim$SPN.coverage" NAME="SPN Coverage Results" MODIFIED="1420458179787" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/petri_net" />
   </component>
   <component name="CreatePatchCommitExecutor">
@@ -83,77 +73,79 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="simple_example_script.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/simple_example_script.py">
+      <file leaf-file-name="PL_sim.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/examples/PL_sim.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="468" max-vertical-offset="756">
-              <caret line="26" column="35" selection-start-line="26" selection-start-column="35" selection-end-line="26" selection-end-column="35" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="schlogl_example_script.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/schlogl_example_script.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="960" max-vertical-offset="1746">
-              <caret line="42" column="14" selection-start-line="42" selection-start-column="14" selection-end-line="42" selection-end-column="37" />
+            <state vertical-scroll-proportion="0.5724382" vertical-offset="0" max-vertical-offset="3780">
+              <caret line="18" column="52" selection-start-line="18" selection-start-column="52" selection-end-line="18" selection-end-column="52" />
               <folding>
-                <element signature="e#153#164#0" expanded="true" />
+                <element signature="e#0#14#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="plasmidStability_example_script.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/examples/plasmidStability_example_script.py">
+      <file leaf-file-name="saver.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mod/utils/saver.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.18947369" vertical-offset="0" max-vertical-offset="1224">
-              <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="parser.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mod/parser/parser.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="342" max-vertical-offset="1332">
-              <caret line="22" column="50" selection-start-line="22" selection-start-column="50" selection-end-line="22" selection-end-column="50" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="tl_parser.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mod/parser/tl_parser.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="828" max-vertical-offset="3384">
-              <caret line="119" column="72" selection-start-line="119" selection-start-column="21" selection-end-line="119" selection-end-column="72" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cuTauLeaping.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mod/simulator/cuTauLeaping/cuTauLeaping.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="378" max-vertical-offset="4248">
-              <caret line="36" column="20" selection-start-line="36" selection-start-column="20" selection-end-line="36" selection-end-column="20" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="321" max-vertical-offset="900">
+              <caret line="27" column="8" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
               <folding>
-                <element signature="e#0#13#0" expanded="true" />
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cuGillespie.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mod/simulator/cuGillespie/cuGillespie.py">
+      <file leaf-file-name="timer.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mod/utils/timer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="936" max-vertical-offset="3006">
-              <caret line="49" column="35" selection-start-line="49" selection-start-column="35" selection-end-line="49" selection-end-column="35" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="468">
+              <caret line="9" column="30" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="lotkaVolterra_sim.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/lotkaVolterra_sim.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1108" max-vertical-offset="2646">
+              <caret line="87" column="0" selection-start-line="87" selection-start-column="0" selection-end-line="89" selection-end-column="1" />
               <folding>
-                <element signature="e#0#13#0" expanded="true" />
+                <element signature="e#0#14#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="schlogl_sim.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/schlogl_sim.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="702" max-vertical-offset="2106">
+              <caret line="60" column="0" selection-start-line="60" selection-start-column="0" selection-end-line="69" selection-end-column="32" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="simple_sim.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/simple_sim.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="732" max-vertical-offset="1782">
+              <caret line="81" column="0" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="sim_maker.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sim_maker.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1368">
+              <caret line="9" column="31" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -206,16 +198,26 @@
         <option value="$PROJECT_DIR$/simulator/cuGillespie/cuGillespie.py" />
         <option value="$PROJECT_DIR$/examples/__inti__.py" />
         <option value="$PROJECT_DIR$/simulator/cuTauLeaping/cuTauLeaping.py" />
-        <option value="$PROJECT_DIR$/mod/parser/tl_parser.py" />
         <option value="$PROJECT_DIR$/Main.py" />
-        <option value="$PROJECT_DIR$/mod/parser/g_parser.py" />
         <option value="$PROJECT_DIR$/mod/parser/parser.py" />
         <option value="$PROJECT_DIR$/mod/petri_net/SPN.py" />
         <option value="$PROJECT_DIR$/examples/schlogl_example_script.py" />
-        <option value="$PROJECT_DIR$/mod/simulator/cuTauLeaping/cuTauLeaping.py" />
-        <option value="$PROJECT_DIR$/mod/simulator/cuGillespie/cuGillespie.py" />
         <option value="$PROJECT_DIR$/examples/simple_example_script.py" />
         <option value="$PROJECT_DIR$/examples/plasmidStability_example_script.py" />
+        <option value="$PROJECT_DIR$/mod/utils/__init__.py" />
+        <option value="$PROJECT_DIR$/mod/parser/tl_parser.py" />
+        <option value="$PROJECT_DIR$/mod/simulator/cuTauLeaping/cuTauLeaping.py" />
+        <option value="$PROJECT_DIR$/mod/parser/g_parser.py" />
+        <option value="$PROJECT_DIR$/mod/simulator/cuGillespie/cuGillespie.py" />
+        <option value="$PROJECT_DIR$/mod/simulator/simulator.py" />
+        <option value="$PROJECT_DIR$/mod/utils/saver.py" />
+        <option value="$PROJECT_DIR$/mod/utils/timer.py" />
+        <option value="$PROJECT_DIR$/examples/plasmid_stability.xml" />
+        <option value="$PROJECT_DIR$/examples/lotkaVolterra_sim.py" />
+        <option value="$PROJECT_DIR$/examples/schlogl_sim.py" />
+        <option value="$PROJECT_DIR$/examples/simple_sim.py" />
+        <option value="$PROJECT_DIR$/sim_maker.py" />
+        <option value="$PROJECT_DIR$/examples/PL_sim.py" />
       </list>
     </option>
   </component>
@@ -223,10 +225,10 @@
     <detection-done>true</detection-done>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="53" />
+    <option name="x" value="1973" />
     <option name="y" value="24" />
     <option name="width" value="1867" />
-    <option name="height" value="1056" />
+    <option name="height" value="1176" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -270,7 +272,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -435,6 +436,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -475,30 +477,8 @@
       <recent name="$PROJECT_DIR$/mod" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.simple_example_script">
-    <configuration default="false" name="my_sim" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="my_sim" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Main.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <RunnerSettings RunnerId="PyDebugRunner" />
-      <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PyDebugRunner" />
-      <ConfigurationWrapper RunnerId="PythonRunner" />
-      <method />
-    </configuration>
-    <configuration default="false" name="schlogl_example_script" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.PL_sim">
+    <configuration default="false" name="simple_sim" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -511,16 +491,14 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="my_sim" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/schlogl_example_script.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/simple_sim.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
-      <RunnerSettings RunnerId="PyDebugRunner" />
       <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PyDebugRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="lotkaVolterra_example_script" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="PL_sim" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -533,14 +511,14 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="my_sim" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/lotkaVolterra_example_script.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/PL_sim.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <RunnerSettings RunnerId="PythonRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="simple_example_script" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="schlogl_sim" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -553,7 +531,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="my_sim" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/simple_example_script.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/schlogl_sim.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <RunnerSettings RunnerId="PythonRunner" />
@@ -577,6 +555,28 @@
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="lotkaVolterra_sim" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/examples" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="my_sim" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/lotkaVolterra_sim.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <RunnerSettings RunnerId="PyDebugRunner" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PyDebugRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
@@ -665,6 +665,9 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
     </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
+      <method />
+    </configuration>
     <configuration default="true" type="tests" factoryName="Unittests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -686,9 +689,6 @@
       <option name="PUREUNITTEST" value="true" />
       <option name="PARAMS" value="" />
       <option name="USE_PARAM" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
       <method />
     </configuration>
     <configuration default="true" type="PyBehaveRunConfigurationType" factoryName="Behave">
@@ -734,6 +734,20 @@
       <envs />
       <method />
     </configuration>
+    <configuration default="true" type="PyLettuceRunConfigurationType" factoryName="Lettuce">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="my_sim" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="ADDITIONAL_ARGS" value="" />
+      <method />
+    </configuration>
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -754,34 +768,20 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="PyLettuceRunConfigurationType" factoryName="Lettuce">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="my_sim" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="ADDITIONAL_ARGS" value="" />
-      <method />
-    </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.my_sim" />
-      <item index="1" class="java.lang.String" itemvalue="Python.schlogl_example_script" />
-      <item index="2" class="java.lang.String" itemvalue="Python.lotkaVolterra_example_script" />
-      <item index="3" class="java.lang.String" itemvalue="Python.simple_example_script" />
-      <item index="4" class="java.lang.String" itemvalue="Python.plasmidStability_example_script" />
+      <item index="0" class="java.lang.String" itemvalue="Python.simple_sim" />
+      <item index="1" class="java.lang.String" itemvalue="Python.PL_sim" />
+      <item index="2" class="java.lang.String" itemvalue="Python.schlogl_sim" />
+      <item index="3" class="java.lang.String" itemvalue="Python.plasmidStability_example_script" />
+      <item index="4" class="java.lang.String" itemvalue="Python.lotkaVolterra_sim" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.simple_example_script" />
-        <item index="1" class="java.lang.String" itemvalue="Python.plasmidStability_example_script" />
-        <item index="2" class="java.lang.String" itemvalue="Python.lotkaVolterra_example_script" />
-        <item index="3" class="java.lang.String" itemvalue="Python.schlogl_example_script" />
-        <item index="4" class="java.lang.String" itemvalue="Python.my_sim" />
+        <item index="0" class="java.lang.String" itemvalue="Python.PL_sim" />
+        <item index="1" class="java.lang.String" itemvalue="Python.simple_sim" />
+        <item index="2" class="java.lang.String" itemvalue="Python.schlogl_sim" />
+        <item index="3" class="java.lang.String" itemvalue="Python.lotkaVolterra_sim" />
+        <item index="4" class="java.lang.String" itemvalue="Python.plasmidStability_example_script" />
       </list>
     </recent_temporary>
   </component>
@@ -904,25 +904,25 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="53" y="24" width="1867" height="1056" extended-state="6" />
+    <frame x="1973" y="24" width="1867" height="1176" extended-state="6" />
     <editor active="false" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.62222224" sideWeight="0.49917626" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.621875" sideWeight="0.49917626" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32592592" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.62222224" sideWeight="0.50082374" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3962963" sideWeight="0.49917626" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39583334" sideWeight="0.49917626" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962963" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.11388286" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18945634" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.276771" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962963" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.375" sideWeight="0.49972543" order="13" side_tool="false" content_ui="tabs" x="986" y="24" width="933" height="1176" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.43611112" sideWeight="0.49972543" order="13" side_tool="false" content_ui="tabs" x="986" y="24" width="933" height="1176" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32604167" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962963" sideWeight="0.4994363" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -948,9 +948,9 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.14772104" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.325" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="986" y="24" width="933" height="1176" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.325" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="986" y="24" width="933" height="1176" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -986,118 +986,11 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="29" />
+      <option name="time" value="32" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="306" max-vertical-offset="1134">
-          <caret line="20" column="49" selection-start-line="20" selection-start-column="49" selection-end-line="20" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/parser/tl_parser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4338">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/petri_net/SPN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1648" max-vertical-offset="2358">
-          <caret line="82" column="24" selection-start-line="82" selection-start-column="24" selection-end-line="82" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="306" max-vertical-offset="1134">
-          <caret line="20" column="49" selection-start-line="20" selection-start-column="49" selection-end-line="20" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/parser/tl_parser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3744">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/petri_net/SPN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1648" max-vertical-offset="2358">
-          <caret line="82" column="24" selection-start-line="82" selection-start-column="24" selection-end-line="82" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="306" max-vertical-offset="1134">
-          <caret line="20" column="49" selection-start-line="20" selection-start-column="49" selection-end-line="20" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/parser/tl_parser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3082" max-vertical-offset="3762">
-          <caret line="180" column="30" selection-start-line="180" selection-start-column="30" selection-end-line="180" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="uml://Python/#/home/sandy/Documents/Code/my_sim">
-      <provider selected="true" editor-type-id="UmlEditorProvider">
-        <state>
-          <ID>Python</ID>
-          <OriginalElement>#/home/sandy/Documents/Code/my_sim</OriginalElement>
-          <nodes>
-            <node x="" y="">parser.tl_parser.TlArgs</node>
-            <node x="" y="">petri_net.SPN.SPN</node>
-            <node x="" y="">parser.tl_parser.TlParser</node>
-          </nodes>
-          <notes />
-          <edges />
-          <settings layout="Hierarchic Group" zoom="1.0" x="685.0" y="304.0" />
-          <SelectedNodes />
-          <Categories />
-          <SCOPE>All</SCOPE>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/petri_net/SPN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1476" max-vertical-offset="2358">
-          <caret line="82" column="24" selection-start-line="82" selection-start-column="24" selection-end-line="82" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="36" max-vertical-offset="1098">
-          <caret line="2" column="21" selection-start-line="2" selection-start-column="21" selection-end-line="2" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/parser/tl_parser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2790">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/petri_net/SPN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1487" max-vertical-offset="2214">
-          <caret line="102" column="0" selection-start-line="102" selection-start-column="0" selection-end-line="104" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python2.7/dist-packages/numpy/random/setup.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1458">
@@ -1130,13 +1023,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.12162162" vertical-offset="1512" max-vertical-offset="2124">
           <caret line="90" column="15" selection-start-line="90" selection-start-column="15" selection-end-line="90" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="12312">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1236,27 +1122,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/lotkaVolterra_example_script.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="597" max-vertical-offset="1278">
-          <caret line="49" column="44" selection-start-line="49" selection-start-column="44" selection-end-line="49" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/petri_net/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="108">
-          <caret line="0" column="8" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/parser/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.027906977" vertical-offset="0" max-vertical-offset="645">
-          <caret line="1" column="46" selection-start-line="1" selection-start-column="46" selection-end-line="1" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mod/simulator/cuGillespie/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.027906977" vertical-offset="0" max-vertical-offset="645">
@@ -1271,13 +1136,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mod/simulator/cuGillespie/gillespie.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="3.3767443" vertical-offset="0" max-vertical-offset="3654">
-          <caret line="121" column="5" selection-start-line="121" selection-start-column="5" selection-end-line="121" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mod/simulator/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="108">
@@ -1285,110 +1143,216 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mod/utils/__init__.py">
+    <entry file="file://$PROJECT_DIR$/examples/vis_prof_session">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="681">
-          <caret line="0" column="23" selection-start-line="0" selection-start-column="23" selection-end-line="0" selection-end-column="23" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="702">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mod/utils/timer.py">
+    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.055813953" vertical-offset="0" max-vertical-offset="645">
-          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="22086">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mod/parser/g_parser.py">
+    <entry file="file://$PROJECT_DIR$/examples/schlogl_sbml.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5534884" vertical-offset="201" max-vertical-offset="1278">
-          <caret line="31" column="22" selection-start-line="31" selection-start-column="22" selection-end-line="31" selection-end-column="22" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2592">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
+    <entry file="file://$PROJECT_DIR$/examples/schlogl_sbmlv2.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.30542636" vertical-offset="1" max-vertical-offset="1476">
-          <caret line="11" column="30" selection-start-line="11" selection-start-column="30" selection-end-line="11" selection-end-column="30" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2448">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mod/simulator/simulator.py">
+    <entry file="file://$PROJECT_DIR$/mod/parser/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.7581395" vertical-offset="0" max-vertical-offset="1800">
-          <caret line="63" column="34" selection-start-line="63" selection-start-column="34" selection-end-line="63" selection-end-column="34" />
+        <state vertical-scroll-proportion="0.031088082" vertical-offset="0" max-vertical-offset="579">
+          <caret line="1" column="46" selection-start-line="1" selection-start-column="46" selection-end-line="1" selection-end-column="46" />
           <folding>
-            <element signature="e#0#11#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/petri_net/SPN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.44210526" vertical-offset="2304" max-vertical-offset="3096">
-          <caret line="115" column="26" selection-start-line="115" selection-start-column="26" selection-end-line="115" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/simulator/cuTauLeaping/cuTauLeaping.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="378" max-vertical-offset="4248">
-          <caret line="36" column="20" selection-start-line="36" selection-start-column="20" selection-end-line="36" selection-end-column="20" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mod/simulator/cuGillespie/cuGillespie.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="936" max-vertical-offset="3006">
-          <caret line="49" column="35" selection-start-line="49" selection-start-column="35" selection-end-line="49" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#49#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mod/parser/parser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1314">
-          <caret line="22" column="50" selection-start-line="22" selection-start-column="50" selection-end-line="22" selection-end-column="50" />
+        <state vertical-scroll-proportion="-0.8031088" vertical-offset="753" max-vertical-offset="1332">
+          <caret line="19" column="49" selection-start-line="19" selection-start-column="49" selection-end-line="19" selection-end-column="49" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mod/parser/tl_parser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="828" max-vertical-offset="3384">
-          <caret line="119" column="72" selection-start-line="119" selection-start-column="21" selection-end-line="119" selection-end-column="72" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/schlogl_example_script.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1014" max-vertical-offset="1746">
-          <caret line="42" column="14" selection-start-line="42" selection-start-column="14" selection-end-line="42" selection-end-column="37" />
+        <state vertical-scroll-proportion="0.7512953" vertical-offset="2139" max-vertical-offset="2718">
+          <caret line="143" column="13" selection-start-line="143" selection-start-column="13" selection-end-line="143" selection-end-column="13" />
           <folding>
-            <element signature="e#153#164#0" expanded="true" />
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/simple_example_script.py">
+    <entry file="file://$PROJECT_DIR$/mod/petri_net/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="132" max-vertical-offset="756">
-          <caret line="26" column="35" selection-start-line="26" selection-start-column="35" selection-end-line="26" selection-end-column="35" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="579">
+          <caret line="0" column="8" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/petri_net/SPN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.1709845" vertical-offset="2517" max-vertical-offset="3096">
+          <caret line="71" column="22" selection-start-line="71" selection-start-column="22" selection-end-line="71" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/simulator/cuGillespie/gillespie.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.9657143" vertical-offset="1164" max-vertical-offset="3654">
+          <caret line="121" column="5" selection-start-line="121" selection-start-column="5" selection-end-line="121" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/simulator/cuGillespie/cuGillespie.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5388601" vertical-offset="12" max-vertical-offset="2736">
+          <caret line="18" column="62" selection-start-line="18" selection-start-column="62" selection-end-line="18" selection-end-column="62" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/simulator/cuTauLeaping/cuTauLeaping.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-6.2124352" vertical-offset="3921" max-vertical-offset="4500">
+          <caret line="18" column="33" selection-start-line="18" selection-start-column="33" selection-end-line="18" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/parser/g_parser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.6165804" vertical-offset="0" max-vertical-offset="1044">
+          <caret line="52" column="0" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/simulator/simulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.47668394" vertical-offset="1092" max-vertical-offset="1710">
+          <caret line="82" column="11" selection-start-line="82" selection-start-column="11" selection-end-line="82" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/utils/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.062176164" vertical-offset="0" max-vertical-offset="579">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/utils/saver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="321" max-vertical-offset="900">
+          <caret line="27" column="8" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mod/utils/timer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="468">
+          <caret line="9" column="30" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/plasmid_stability.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2268">
+          <caret line="134" column="17" selection-start-line="134" selection-start-column="17" selection-end-line="134" selection-end-column="17" />
+          <folding>
+            <element signature="n#listOfUnitDefinitions#0;n#model#0;n#sbml#0;n#!!top" expanded="false" />
+            <element signature="n#listOfCompartments#0;n#model#0;n#sbml#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/lotkaVolterra_sim.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1108" max-vertical-offset="2646">
+          <caret line="87" column="0" selection-start-line="87" selection-start-column="0" selection-end-line="89" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/schlogl_sim.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="702" max-vertical-offset="2106">
+          <caret line="60" column="0" selection-start-line="60" selection-start-column="0" selection-end-line="69" selection-end-column="32" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/plasmidStability_example_script.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.18947369" vertical-offset="0" max-vertical-offset="1224">
-          <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
+        <state vertical-scroll-proportion="0.29142857" vertical-offset="0" max-vertical-offset="2124">
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/simple_sim.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="732" max-vertical-offset="1782">
+          <caret line="81" column="0" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sim_maker.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1368">
+          <caret line="9" column="31" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/PL_sim.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5724382" vertical-offset="0" max-vertical-offset="3780">
+          <caret line="18" column="52" selection-start-line="18" selection-start-column="52" selection-end-line="18" selection-end-column="52" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

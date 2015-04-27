@@ -1,96 +1,55 @@
-# VARIABLE | DESCRIPTION                       | TYPE  | DIMENSIONS | KERNEL
-#
-# ********** MODEL PARAMETERS **********
-# c        - stochastic constants              - float - M          - P1-P2, P3 //
-# x_0      - initial system state              - uint  - N
-#
-# ********** THE MODEL **********
-# A        - flattened Pre matrix              - uchar4 - A_size      //
-# V        - flattened stoichiometry matrix    - uchar4 - V_size      //  CONSTANT
-# V_t      - flat transpose of stoich matrix   - uchar4 - V_t_size    //  MEMORY
-# V_bar    - flat constant stoich matrix       - uchar4 - V_bar_size  //
-#
-# hazards  - function of hazard functions      - function
-#
-# ********** ATTRIBUTES OF THE MODEL **********
-# ita      - number of time instants for output- uint  - 1            //
-# kappa    - number of output species          - uint  - 1            //
-# M        - number of reactions               - uint  - 1            //
-# N        - number of species                 - uint  - 1            //  CONSTANT
-# A_size   -                                   - uint  - 1            //  MEMORY
-# V_size   -                                   - uint  - 1            //
-# V_t_size -                                   - uint  - 1            //
-# V_bar_size  -                                - uint  - 1            //
-#
-# H        - HOR for each species              - uint  - N            //  COULD BE
-# H_type   - stoichiometry of the HOR          - uint  - N            //  CONSTANT?
-#
-# ********** PARAMETERS OF THE SIMULATION **********
-# n_c      - critical reaction threshold       - uint  - 1            //  CONSTANT
-# eta      - error control parameter           - uint  - 1            //  MEMORY
-# t_max    - simulation length                 - float?- 1            //
-#
-# E    - indices of the output species         - uint  - kappa            //
-
 import string
 import re
 import numpy
-
 import sympy
-
 from parser import Parser
-from mod.petri_net import SPN
 
 
 class TlArgs:
     def __init__(self):
-        # definitions of these variables are in cuTauLeaping paper by Nobile
+        # Definitions of these variables are in cuTauLeaping paper by Nobile
         # et al.
-        self.c = []
-        self.x_0 = []
+        self.c = []    # parameter values vector
+        self.x_0 = []  # initial species amounts vector
 
         self.A = []  # flattened spn.Pre matrix
-        self.V = []
-        self.V_t = []
-        self.V_bar = []
+        self.V = []  # flattened stoichiometry matrix
+        self.V_t = []  # flattened transpose of stoichiometry matrix
+        self.V_bar = []  #
 
-        self.M = 0
-        self.N = 0
-        self.A_size = 0
-        self.V_size = 0
-        self.V_t_size = 0
+        self.M = 0  # number of reactions
+        self.N = 0  # number of species
+        self.A_size = 0  # number of non-zero entries in Pre matrix
+        self.V_size = 0  # number of non-zero entries in stoichiometry matrix
+        self.V_t_size = 0  # etc.
         self.V_bar_size = 0
 
-        self.hazards = []
+        self.hazards = []  # the CUDA code for UpdatePropensities
 
-        self.H = []
-        self.H_type = []
+        self.H = []  # highest order reaction for each species
+        self.H_type = []  # see Nobile et al. 2014
 
-        # these should be taken from a simulation set up xml
-        self.E = numpy.array([0]).astype(
-            numpy.int32)  # indices of the output species
+        # These should be taken from a simulation set up xml
+        self.E = numpy.array([0]).astype(numpy.int32)  # indices of the output species
         self.t_max = 1  # the time at which the simulation ends
-        self.ita = 11  # number of time recording points
-        self.U = 128
+        self.ita = 11   # number of time recording points
+        self.U = 128    # number of threads
 
-        # these are derived from setup params above
+        # These are derived from setup params above
         self.kappa = len(self.E)  # number of species we're recording
         self.I = numpy.array([])  # instances for recording
 
-        # these are default values that I won't change for now
-        self.n_c = 10  # tauLeaping critical reaction threshold, default=10
+        # These are default values that I won't change for now
+        self.n_c = 10    # tauLeaping critical reaction threshold, default=10
         self.eta = 0.03  # tauLeaping error control param, default=0.03
+
+        # This is a flag to force the use of the Gillespie code
+        self.gillespie = 0
 
 
 class TlParser(Parser):
     @staticmethod
-    def parse(sbml_model, settings_file):
-        # THESE ARE TAKEN FROM THE SBML_MODEL
-        stochastic_petri_net = SPN.SPN()
-        stochastic_petri_net.sbml_2_stochastic_petri_net(sbml_model)
-
-        args_out = TlArgs()
-
+    def parse(args_out, stochastic_petri_net):
         args_out.c = numpy.array(stochastic_petri_net.c).astype(numpy.float64)
 
         args_out.x_0 = numpy.array(stochastic_petri_net.M).astype(numpy.int32)
@@ -112,9 +71,6 @@ class TlParser(Parser):
         args_out.H, args_out.H_type = TlParser.get_hors(stochastic_petri_net)
 
         args_out.hazards = TlParser.define_hazards(stochastic_petri_net)
-
-        # THESE ARE TAKEN FROM THE SIMULATION XML
-        Parser.parse_settings(settings_file, args_out)
 
         args_out.kappa = len(args_out.E)  # number of species we're recording
         args_out.I = numpy.linspace(0, args_out.t_max, num=args_out.ita).astype(

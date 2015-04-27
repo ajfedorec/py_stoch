@@ -8,7 +8,7 @@ from pycuda.compiler import SourceModule
 
 
 class Simulator:
-    def CalculateSizes(self, tl_args):
+    def calculate_sizes(self, tl_args):
         hw_constrained_threads_per_block = cuda_tools.DeviceData().max_threads
 
         # T <= floor(MAX_shared / (13M + 8N)) from cuTauLeaping paper eq (5)
@@ -26,7 +26,7 @@ class Simulator:
         #   T <= floor(Max_shared / (9M + 8N + 4P + 10) (bytes)
         max_shared_mem = cuda_tools.DeviceData().shared_memory
         shared_mem_constrained_threads_per_block = math.floor(max_shared_mem / (
-        9 * tl_args.M + 8 * tl_args.N + 4 * len(tl_args.c)) + 10)
+            9 * tl_args.M + 8 * tl_args.N + 4 * len(tl_args.c)) + 10)
 
         max_threads_per_block = min(hw_constrained_threads_per_block,
                                     shared_mem_constrained_threads_per_block)
@@ -59,7 +59,8 @@ class Simulator:
 
 
 class StochasticSimulator(Simulator):
-    def get_rng_states(self, size):
+    @staticmethod
+    def get_rng_states(size):
         init_rng_src = """
         #include <curand_kernel.h>
 

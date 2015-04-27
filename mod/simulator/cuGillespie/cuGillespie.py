@@ -1,7 +1,6 @@
 import string
 import numpy
 import math
-from mod.parser import GParser
 
 import pycuda.driver as cuda
 from pycuda.compiler import SourceModule
@@ -14,11 +13,8 @@ from mod.utils import Timer
 
 
 class CuGillespie(StochasticSimulator):
-    def run(self, sbml_model, settings_file):
-        my_args = GParser.parse(sbml_model, settings_file)
-
-        grid_size, block_size = self.CalculateSizes(my_args)
-        print grid_size, block_size
+    def run(self, my_args):
+        grid_size, block_size = self.calculate_sizes(my_args)
 
         gillespie_template = string.Template(gillespie.kernel)
         gillespie_code = gillespie_template.substitute(V_SIZE=my_args.V_size,
@@ -34,27 +30,23 @@ class CuGillespie(StochasticSimulator):
 
         gillespie_kernel = SourceModule(gillespie_code, no_extern_c=True)
 
-        self.LoadDataOnGPU(my_args, gillespie_kernel)
-        d_O = self.AllocateDataOnGPU(my_args)
+        self.load_data_on_gpu(my_args, gillespie_kernel)
+        d_O = self.allocate_data_on_gpu(my_args)
         d_rng = self.get_rng_states(my_args.U)
 
         cuda.Context.synchronize()
-        print cuda.mem_get_info()
 
-        kernel_Gillespie = gillespie_kernel.get_function('kernel_Gillespie')
-        kernel_Gillespie(d_O, d_rng, grid=(int(grid_size), 1, 1),
-                     block=(int(block_size), 1, 1))
+        kernel_gillespie = gillespie_kernel.get_function('kernel_Gillespie')
+        kernel_gillespie(d_O, d_rng, grid=(int(grid_size), 1, 1),
+                         block=(int(block_size), 1, 1))
         cuda.Context.synchronize()
-
-
-        # print cuda.mem_get_info()
 
         O = d_O.get()
         cuda.Context.synchronize()
         return O
 
-
-    def LoadDataOnGPU(self, tl_args, module):
+    @staticmethod
+    def load_data_on_gpu(tl_args, module):
         d_V = module.get_global('d_V')[0]
         cuda.memcpy_htod_async(d_V, tl_args.V)
 
@@ -70,23 +62,16 @@ class CuGillespie(StochasticSimulator):
         d_x_0 = module.get_global('d_x_0')[0]
         cuda.memcpy_htod_async(d_x_0, tl_args.x_0)
 
-    def AllocateGlobals(self, O):
+    @staticmethod
+    def allocate_globals(O):
         d_O = gpuarray.to_gpu_async(O)
-
         return d_O
 
-    def AllocateDataOnGPU(self, tl_args):
-        # d_O = gpuarray.zeros([tl_args.kappa, tl_args.ita, tl_args.U], numpy.uint32)
-        # d_t = gpuarray.zeros(tl_args.U, numpy.float32)
-        # d_F = gpuarray.zeros(tl_args.U, numpy.uint32)
-        #
-        # return d_O, d_t, d_F
-
+    def allocate_data_on_gpu(self, tl_args):
         O = numpy.zeros([tl_args.kappa, tl_args.ita, tl_args.U], numpy.int32)
+        return self.allocate_globals(O)
 
-        return self.AllocateGlobals(O)
-
-    def CalculateSizes(self, tl_args):
+    def calculate_sizes(self, tl_args):
         hw_constrained_threads_per_block = tools.DeviceData().max_threads
 
         # T <= floor(MAX_shared / (13M + 8N)) from cuTauLeaping paper eq (5)

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2/version4" level="2" version="4">
+  <model name="plasmid_stability">
+    <listOfUnitDefinitions>
+      <unitDefinition id="volume" name="litre">
+        <listOfUnits>
+          <unit kind="litre" exponent="1" scale="0" multiplier="1" />
+        </listOfUnits>
+      </unitDefinition>
+      <unitDefinition id="substance" name="mole">
+        <listOfUnits>
+          <unit kind="mole" exponent="1" scale="0" multiplier="1" />
+        </listOfUnits>
+      </unitDefinition>
+      <unitDefinition id="time" name="second">
+        <listOfUnits>
+          <unit kind="second" exponent="1" scale="0" multiplier="1" />
+        </listOfUnits>
+      </unitDefinition>
+    </listOfUnitDefinitions>
+    <listOfCompartments>
+      <compartment id="cell" name="cell" spatialDimensions="3" constant="true" />
+    </listOfCompartments>
+    <listOfSpecies>
+      <species id="Xp" name="Xp" compartment="cell" initialAmount="100" boundaryCondition="false" />
+      <species id="Xm" name="Xm" compartment="cell" initialAmount="0" boundaryCondition="false" />
+    </listOfSpecies>
+    <listOfParameters>
+      <parameter id="Tp" name="Tp" value="1" units="time" constant="false" />
+      <parameter id="Tm" name="Tm" value="0.75" units="time" constant="false" />
+      <parameter id="lambda" name="lambda" value="0.01" constant="false" />
+      <parameter id="omega" name="omega" value="0" constant="false" />
+    </listOfParameters>
+    <listOfReactions>
+      <reaction id="reaction_0" name="react_1" reversible="false">
+        <listOfReactants>
+          <speciesReference species="Xp" stoichiometry="1" />
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="Xp" stoichiometry="2" />
+        </listOfProducts>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <apply>
+                <divide />
+                <apply>
+                  <minus />
+                  <cn type="integer">1</cn>
+                  <ci>lambda</ci>
+                </apply>
+                <ci>Tp</ci>
+              </apply>
+              <ci>Xp</ci>
+            </apply>
+          </math>
+        </kineticLaw>
+      </reaction>
+      <reaction id="reaction_1" name="react_2" reversible="false">
+        <listOfReactants>
+          <speciesReference species="Xp" stoichiometry="1" />
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="Xp" stoichiometry="1" />
+          <speciesReference species="Xm" stoichiometry="1" />
+        </listOfProducts>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <apply>
+                <divide />
+                <apply>
+                  <times />
+                  <ci>lambda</ci>
+                  <apply>
+                    <minus />
+                    <cn type="integer">1</cn>
+                    <ci>omega</ci>
+                  </apply>
+                </apply>
+                <ci>Tp</ci>
+              </apply>
+              <ci>Xp</ci>
+            </apply>
+          </math>
+        </kineticLaw>
+      </reaction>
+      <reaction id="reaction_2" name="react_3" reversible="false">
+        <listOfReactants>
+          <speciesReference species="Xp" stoichiometry="1" />
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="Xp" stoichiometry="1" />
+        </listOfProducts>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <apply>
+                <divide />
+                <apply>
+                  <times />
+                  <ci>lambda</ci>
+                  <ci>omega</ci>
+                </apply>
+                <ci>Tp</ci>
+              </apply>
+              <ci>Xp</ci>
+            </apply>
+          </math>
+        </kineticLaw>
+      </reaction>
+      <reaction id="reaction_3" name="react_4" reversible="false">
+        <listOfReactants>
+          <speciesReference species="Xm" stoichiometry="1" />
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="Xm" stoichiometry="2" />
+        </listOfProducts>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times />
+              <apply>
+                <divide />
+                <cn type="integer">1</cn>
+                <ci>Tm</ci>
+              </apply>
+              <ci>Xm</ci>
+            </apply>
+          </math>
+        </kineticLaw>
+      </reaction>
+    </listOfReactions>
+  </model>
+</sbml>
