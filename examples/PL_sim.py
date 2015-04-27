@@ -10,7 +10,7 @@ from mod.utils.saver import save_results
 #
 # Location of your SBML model file.
 # TODO: change to relative path
-sbml_file = '/home/sandy/Documents/Code/my_sim/examples/plasmid_stability.xml'
+sbml_file = '/home/sandy/Documents/Code/py_stoch/examples/plasmid_stability.xml'
 reader = libsbml.SBMLReader()
 document = reader.readSBML(sbml_file)
 # check the SBML for errors

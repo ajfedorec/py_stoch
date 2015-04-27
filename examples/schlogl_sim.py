@@ -6,7 +6,7 @@ import sim_maker
 ##
 ## GET SBML MODEL ##
 ##
-sbml_file = '/home/sandy/Documents/Code/my_sim/examples/schlogl_sbmlv2.xml'
+sbml_file = '/home/sandy/Documents/Code/py_stoch/examples/schlogl_sbmlv2.xml'
 reader = libsbml.SBMLReader()
 document = reader.readSBML(sbml_file)
 # check the SBML for errors
