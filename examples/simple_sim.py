@@ -33,7 +33,7 @@ duration = 0.1
 # simulation.
 num_output_time_points = 2
 # Number of times you want to run each simulation setup.
-num_simulations = 1280000
+num_simulations = 128000
 
 #
 # SIMULATION PARAMETERS
@@ -46,7 +46,7 @@ num_simulations = 1280000
 # e.g. [[1], [2]] or [[1, 2, 3], [4]] etc.
 species_init = [[1000, 10000], [1], [0]]
 # Parameter values. See description for "species_init" for details.
-parameters = [[1, 2, 3, 4, 5], [1, 2, 3, 4, 5]]
+parameters = [[1, 2, 5], [1, 2, 5]]
 
 # Produce a list of all combinations of simulation from the given parameters
 tl_args_list = sim_maker.TLArgsList.make_list(sbml_model, species_init,
@@ -67,35 +67,35 @@ for args_idx, args in enumerate(tl_args_list):
     simulator = cuTauLeaping.CuTauLeaping()
     new_result = simulator.run(args)
     tl_results.append(new_result)
-    save_results(new_result, args, sbml_model.getName(), sim_type='TL')
+    # save_results(new_result, args, sbml_model.getName(), sim_type='TL')
 
 g_results = []
 for args_idx, args in enumerate(g_args_list):
     simulator = cuTauLeaping.CuTauLeaping()
     new_result = simulator.run(args)
     g_results.append(new_result)
-    save_results(new_result, args, sbml_model.getName(), sim_type='G')
+    # save_results(new_result, args, sbml_model.getName(), sim_type='G')
 
 
-# #####
-# #   RESULTS FOR SIMPLE MODEL
-# #
-# import matplotlib.pyplot as plt
-# from scipy import stats
-# import numpy
+#####
+#   RESULTS FOR SIMPLE MODEL
 #
-# plt.show()
-#
-# plt.figure(1)
-# for r_idx, result in enumerate(tl_results):
-#     plt.subplot(6, 3, r_idx + 1)
-#     density_TL = stats.gaussian_kde(tl_results[r_idx][0][1])
-#     density_G = stats.gaussian_kde(g_results[r_idx][0][1])
-#     plt_range = numpy.arange(10, 90, 0.1)
-#     plt.plot(plt_range, density_TL(plt_range), 'r-')
-#     plt.plot(plt_range, density_G(plt_range), 'b-')
-#     plt.ylim(0, 0.1)
-#     plt.title('x_0 = ' + str(tl_args_list[r_idx].x_0) + ', c = ' +
-#               str(tl_args_list[r_idx].c))
-#
-# plt.show()
+import matplotlib.pyplot as plt
+from scipy import stats
+import numpy
+
+plt.show()
+
+plt.figure(1)
+for r_idx, result in enumerate(tl_results):
+    plt.subplot(6, 3, r_idx + 1)
+    density_TL = stats.gaussian_kde(tl_results[r_idx][0][1])
+    density_G = stats.gaussian_kde(g_results[r_idx][0][1])
+    plt_range = numpy.arange(10, 90, 0.1)
+    plt.plot(plt_range, density_TL(plt_range), 'r-')
+    plt.plot(plt_range, density_G(plt_range), 'b-')
+    plt.ylim(0, 0.1)
+    plt.title('x_0 = ' + str(tl_args_list[r_idx].x_0) + ', c = ' +
+              str(tl_args_list[r_idx].c))
+
+plt.show()
