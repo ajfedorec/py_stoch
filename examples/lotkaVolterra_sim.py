@@ -33,7 +33,7 @@ duration = 10
 # Number of points that you want to record the state of the system at. The
 # points are uniformly distributed, starting from 0, across the duration of the
 # simulation.
-num_output_time_points = 10001
+num_output_time_points = 1001
 # Number of times you want to run each simulation setup.
 num_simulations = 1280
 
@@ -67,24 +67,25 @@ g_args_list = sim_maker.TLArgsList.make_list(sbml_model, species_init,
 #
 # RUN A SIMULATIONS
 #
-# TODO think about best way to store results.
 tl_results = []
 for args_idx, args in enumerate(tl_args_list):
     simulator = cuTauLeaping.CuTauLeaping()
     new_result = simulator.run(args)
 
-    save_results(new_result, args, sbml_model.getName(), sim_type='TL')
+    # save_results(new_result, args, sbml_model.getName(), sim_type='TL')
 
     tl_results.append(new_result)
+print 'TL finished'
 
 g_results = []
 for args_idx, args in enumerate(g_args_list):
     simulator = cuTauLeaping.CuTauLeaping()
     new_result = simulator.run(args)
 
-    save_results(new_result, args, sbml_model.getName(), sim_type='G')
+    # save_results(new_result, args, sbml_model.getName(), sim_type='G')
 
     g_results.append(new_result)
+print 'G finished'
 
 #####
 #   RESULTS PLOTTING
@@ -97,7 +98,7 @@ import numpy
 simR_TL = tl_results[0]
 simR_G = g_results[0]
 
-my_range = numpy.linspace(0, 10, num=10001)
+my_range = numpy.linspace(0, duration, num=num_output_time_points)
 
 mean_TL_0 = numpy.mean(simR_TL[0], axis=1)
 mean_TL_1 = numpy.mean(simR_TL[1], axis=1)

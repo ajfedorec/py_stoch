@@ -48,7 +48,10 @@ num_simulations = 2560
 # e.g. [[1], [2]] or [[1, 2, 3], [4]] etc.
 species_init = [[100], [0]]  # [Xp, Xm]
 # Parameter values. See description for "species_init" for details.
-parameters = [[1, 1.1, 1.2, 1.3], [1], [1, 0.1, 0.01, 0.001, 0.0001], [0, 0.9, 0.99, 0.999]]  # [Tp, Tm, lambda, omega]
+parameters = [[1, 1.1, 1.2, 1.3],
+              [1],
+              [1, 0.1, 0.01, 0.001, 0.0001],
+              [0, 0.9, 0.99, 0.999]]  # [Tp, Tm, lambda, omega]
 
 #
 # PARSE SETTINGS
@@ -67,7 +70,6 @@ g_args_list = sim_maker.TLArgsList.make_list(sbml_model, species_init,
 #
 # RUN A SIMULATIONS
 #
-# TODO think about best way to store results.
 tl_results = []
 for args_idx, args in enumerate(tl_args_list):
     simulator = cuTauLeaping.CuTauLeaping()

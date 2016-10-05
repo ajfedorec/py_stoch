@@ -73,7 +73,7 @@ class CuTauLeaping(StochasticSimulator):
             cuda.Context.synchronize()
             # print "...exit check..."
             termin_simulations = -Q
-            # print termin_simulations
+            print termin_simulations
 
         # 12. unitl termin_simulations = U
         # print "... simulations finished..."
